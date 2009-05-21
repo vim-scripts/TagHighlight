@@ -1,0 +1,21 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=2646
+
+This set of scripts is designed to increase the number of highlighting groups used by Vim.  This makes it quicker and easier to spot errors in your code.  By using ctags and parsing the output, the typedefs, #defines, enumerated names etc are all clearly highlighted in different colours.
+
+The idea was based on the comments in :help tag-highlight, but I wanted to take it a little further.
+
+This is achieved through a little python script to interact with ctags and to parse the result and a small Vim script that makes Vim read the resulting files.  Finally, a new command (:UpdateTypesFile) is added (with optional ! for recursive operation) to keep the generated files up to date.
+
+At present, the highlighter supports the following languages:
+C/C++
+Java
+Perl
+PHP (experimental)
+Python
+Ruby (largely untested)
+VHDL
+Adding more languages is extremely simple.
+
+To show the benefit of this plugin, there are some screenshots and a more detailed description at the following website:
+
+http://sites.google.com/site/abudden/contents/Vim-Scripts/ctags-highlighting
