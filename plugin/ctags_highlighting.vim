@@ -1,7 +1,7 @@
 " ctags_highlighting
 "   Author: A. S. Budden
-"   Date:   29 Aug 2008
-"   Version: 1
+"   Date:   22nd May 2009
+"   Version: r259
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
@@ -31,7 +31,14 @@ let g:qtTagsFile = g:VIMFILESDIR . 'tags_qt4'
 let g:wxPyTagsFile = g:VIMFILESDIR . 'tags_wxpy'
 
 " Update types & tags - called with a ! recurses
-command! -bang -bar UpdateTypesFile silent call UpdateTypesFile(<bang>0) | 
+command! -bang -bar UpdateTypesFile silent call UpdateTypesFile(<bang>0, 0) | 
+			\ let s:SavedTabNr = tabpagenr() |
+			\ let s:SavedWinNr = winnr() |
+			\ silent tabdo windo call ReadTypesAutoDetect() |
+			\ silent exe 'tabn ' . s:SavedTabNr |
+			\ silent exe s:SavedTabNr . "wincmd w"
+
+command! -bang -bar UpdateTypesFileOnly silent call UpdateTypesFile(<bang>0, 1) | 
 			\ let s:SavedTabNr = tabpagenr() |
 			\ let s:SavedWinNr = winnr() |
 			\ silent tabdo windo call ReadTypesAutoDetect() |
@@ -133,7 +140,7 @@ function! ReadTypes(suffix)
 endfunction
 
 
-func! UpdateTypesFile(recurse)
+func! UpdateTypesFile(recurse, skiptags)
 	let s:vrc = globpath(&rtp, "mktypes.py")
 
 	if type(s:vrc) == type("")
@@ -196,10 +203,24 @@ func! UpdateTypesFile(recurse)
 		endfor
 	endif
 
+	if exists('b:TypesFileSkipSynMatches')
+		if b:TypesFileSkipSynMatches == 1
+			let syscmd .= ' --skip-matches'
+		endif
+	endif
+
 	if exists('b:TypesFileIncludeLocals')
 		if b:TypesFileIncludeLocals == 1
 			let syscmd .= ' --include-locals'
 		endif
+	endif
+
+	if exists('b:TypesFileDoNotGenerateTags')
+		if b:TypesFileDoNotGenerateTags == 1
+			let syscmd .= ' --use-existing-tagfile'
+		endif
+	elseif a:skiptags == 1
+		let syscmd .= ' --use-existing-tagfile'
 	endif
 
 	let syscmd .= ' --check-keywords --analyse-constants'

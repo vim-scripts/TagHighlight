@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Author: A. S. Budden
-# Date:   5 Sep 2008
-# Version: 0.2
+# Date:   22nd May 2009
+# Version: r259
 import os
 import sys
 import optparse
@@ -63,10 +63,13 @@ def print_timing(func):
 def GetCommandArgs(options):
 	Configuration = {}
 	if options.recurse:
-		Configuration['CTAGS_OPTIONS'] = '--recurse --c-kinds=+l'
+		Configuration['CTAGS_OPTIONS'] = '--recurse'
+		if options.include_locals:
+			Configuration['CTAGS_OPTIONS'] += ' --c-kinds=+l'
 		Configuration['CTAGS_FILES'] = ['.']
 	else:
-		Configuration['CTAGS_OPTIONS'] = '--c-kinds=+l'
+		if options.include_locals:
+			Configuration['CTAGS_OPTIONS'] = '--c-kinds=+l'
 		Configuration['CTAGS_FILES'] = glob.glob('*')
 	if not options.include_docs:
 		Configuration['CTAGS_OPTIONS'] += r" --exclude=docs --exclude=Documentation"
@@ -114,17 +117,9 @@ def CreateTagsFile(config, languages, options):
 
 	os.system(ctags_cmd)
 
-	# Now remove the local variables to make the file smaller
-	if options.include_locals:
-		tagFile = open('tags', 'r')
-		tagLines = [line.strip() for line in tagFile]
-		tagFile.close()
-	else:
-		localRegexp = re.compile(r'\tl\b')
-		tagFile = open('tags', 'r')
-		tagLines = [line.strip() for line in tagFile
-				if localRegexp.search(line) is None]
-		tagFile.close()
+	tagFile = open('tags', 'r')
+	tagLines = [line.strip() for line in tagFile]
+	tagFile.close()
 
 	# Also sort the file a bit better (tag, then kind, then filename)
 	tagLines.sort(key=ctags_key)
@@ -495,6 +490,11 @@ def main():
 			default=False,
 			dest='include_locals',
 			help='Include local variables in the database')
+	parser.add_option('--use-existing-tagfile',
+			action='store_true',
+			default=False,
+			dest='use_existing_tagfile',
+			help='Do not generate tags if a tag file already exists')
 
 	options, remainder = parser.parse_args()
 	global ctags_exe
@@ -516,7 +516,11 @@ def main():
 	else:
 		language_list = [i for i in full_language_list if i in options.languages]
 
-	CreateTagsFile(Configuration, language_list, options)
+	if options.use_existing_tagfile and not os.path.exists('tags'):
+		options.use_existing_tagfile = False
+
+	if not options.use_existing_tagfile:
+		CreateTagsFile(Configuration, language_list, options)
 
 	for language in language_list:
 		Parameters = GetLanguageParameters(language)
