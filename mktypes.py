@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Author: A. S. Budden
-# Date:   23rd May 2009
-# Version: r285
+# Date:   17th July 2009
+# Version: r286
 import os
 import sys
 import optparse
@@ -119,7 +119,7 @@ def CreateTagsFile(config, languages, options):
 #	fh.close()
 
 	#os.system(ctags_cmd)
-	subprocess.call(ctags_cmd)
+	subprocess.call(ctags_cmd, shell = (os.name != 'nt'))
 
 	tagFile = open('tags', 'r')
 	tagLines = [line.strip() for line in tagFile]
