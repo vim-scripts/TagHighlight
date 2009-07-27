@@ -1,7 +1,7 @@
 " ctags_highlighting
 "   Author: A. S. Budden
-"   Date:   22nd May 2009
-"   Version: r259
+"   Date:   23rd May 2009
+"   Version: r285
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
@@ -149,12 +149,12 @@ func! UpdateTypesFile(recurse, skiptags)
 		let mktypes_py_file = s:vrc[0]
 	endif
 
-	let sysroot = 'python ' . mktypes_py_file
+	let sysroot = 'python ' . shellescape(mktypes_py_file)
 	let syscmd = ' --ctags-dir='
 
 	if has("win32")
 		let path = substitute($PATH, ';', ',', 'g')
-		let ctags_exe_list = split(globpath(path, 'ctags.exe'))
+		let ctags_exe_list = split(globpath(path, 'ctags.exe'), '\n')
 		if len(ctags_exe_list) > 0
 			let ctags_exe = ctags_exe_list[0]
 		else
@@ -167,7 +167,7 @@ func! UpdateTypesFile(recurse, skiptags)
 		endif
 
 		if filereadable(ctags_exe)
-			let ctags_path = escape(fnamemodify(ctags_exe, ':p:h'),' \')
+			let ctags_path = shellescape(fnamemodify(ctags_exe, ':p:h'))
 		else
 			throw "Cannot find ctags"
 		endif
@@ -203,9 +203,9 @@ func! UpdateTypesFile(recurse, skiptags)
 		endfor
 	endif
 
-	if exists('b:TypesFileSkipSynMatches')
-		if b:TypesFileSkipSynMatches == 1
-			let syscmd .= ' --skip-matches'
+	if exists('b:TypesFileIncludeSynMatches')
+		if b:TypesFileIncludeSynMatches == 1
+			let syscmd .= ' --include-invalid-keywords-as-matches'
 		endif
 	endif
 
@@ -223,45 +223,45 @@ func! UpdateTypesFile(recurse, skiptags)
 		let syscmd .= ' --use-existing-tagfile'
 	endif
 
-	let syscmd .= ' --check-keywords --analyse-constants'
+	if exists('b:CheckForCScopeFiles')
+		if b:CheckForCScopeFiles == 1
+			let syscmd .= ' --build-cscopedb-if-filelist'
+			let syscmd .= ' --cscope-dir=' 
+			if has("win32")
+				let path = substitute($PATH, ';', ',', 'g')
+				let cscope_exe_list = split(globpath(path, 'cscope.exe'))
+				if len(cscope_exe_list) > 0
+					let cscope_exe = cscope_exe_list[0]
+				else
+					let cscope_exe = ''
+				endif
 
-	if exists('g:CheckForCScopeFiles')
-		let syscmd .= ' --build-cscopedb-if-filelist'
-		let syscmd .= ' --cscope-dir=' 
-		if has("win32")
-			let path = substitute($PATH, ';', ',', 'g')
-			let cscope_exe_list = split(globpath(path, 'cscope.exe'))
-			if len(cscope_exe_list) > 0
-				let cscope_exe = cscope_exe_list[0]
-			else
-				let cscope_exe = ''
-			endif
+				" If cscope is not in the path, look for it in
+				" vimfiles/extra_source/cscope_win
+				if !filereadable(cscope_exe)
+					let cscope_exe = split(globpath(&rtp, "extra_source/cscope_win/cscope.exe"))[0]
+				endif
 
-			" If cscope is not in the path, look for it in
-			" vimfiles/extra_source/cscope_win
-			if !filereadable(cscope_exe)
-				let cscope_exe = split(globpath(&rtp, "extra_source/cscope_win/cscope.exe"))[0]
-			endif
-
-			if filereadable(cscope_exe)
-				let cscope_path = escape(fnamemodify(cscope_exe, ':p:h'),' \')
+				if filereadable(cscope_exe)
+					let cscope_path = escape(fnamemodify(cscope_exe, ':p:h'),' \')
+				else
+					throw "Cannot find cscope"
+				endif
 			else
-				throw "Cannot find cscope"
+				let path = substitute($PATH, ':', ',', 'g')
+				if has("win32unix")
+					let cscope_exe = split(globpath(path, 'cscope.exe'))[0]
+				else
+					let cscope_exe = split(globpath(path, 'cscope'))[0]
+				endif
+				if filereadable(cscope_exe)
+					let cscope_path = fnamemodify(cscope_exe, ':p:h')
+				else
+					throw "Cannot find cscope"
+				endif
 			endif
-		else
-			let path = substitute($PATH, ':', ',', 'g')
-			if has("win32unix")
-				let cscope_exe = split(globpath(path, 'cscope.exe'))[0]
-			else
-				let cscope_exe = split(globpath(path, 'cscope'))[0]
-			endif
-			if filereadable(cscope_exe)
-				let cscope_path = fnamemodify(cscope_exe, ':p:h')
-			else
-				throw "Cannot find cscope"
-			endif
+			let syscmd .= cscope_path
 		endif
-		let syscmd .= cscope_path
 	endif
 
 	let sysoutput = system(sysroot . syscmd) 
