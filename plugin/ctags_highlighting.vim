@@ -1,7 +1,7 @@
 " ctags_highlighting
 "   Author: A. S. Budden
-"   Date:   27th July 2009
-"   Version: r286
+"   Date:   3rd August 2009
+"   Version: r292
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
@@ -225,7 +225,7 @@ func! UpdateTypesFile(recurse, skiptags)
 
 	if exists('b:CheckForCScopeFiles')
 		if b:CheckForCScopeFiles == 1
-			let syscmd .= ' --build-cscopedb-if-filelist'
+			let syscmd .= ' --build-cscopedb-if-cscope-file-exists'
 			let syscmd .= ' --cscope-dir=' 
 			if has("win32")
 				let path = substitute($PATH, ';', ',', 'g')

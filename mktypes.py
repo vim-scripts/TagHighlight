@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Author: A. S. Budden
-# Date:   17th July 2009
-# Version: r286
+# Date:   3rd August 2009
+# Version: r292
 import os
 import sys
 import optparse
