@@ -21,14 +21,14 @@ endif
 " These should only be included if editing a wx or qt file
 " They should also be updated to include all functions etc, not just
 " typedefs
-let g:wxTypesFile = g:VIMFILESDIR . "types_wx.vim"
-let g:qtTypesFile = g:VIMFILESDIR . "types_qt4.vim"
-let g:wxPyTypesFile = g:VIMFILESDIR . "types_wxpy.vim"
+let g:wxTypesFile = shellescape(g:VIMFILESDIR . "types_wx.vim")
+let g:qtTypesFile = shellescape(g:VIMFILESDIR . "types_qt4.vim")
+let g:wxPyTypesFile = shellescape(g:VIMFILESDIR . "types_wxpy.vim")
 
 " These should only be included if editing a wx or qt file
-let g:wxTagsFile = g:VIMFILESDIR . 'tags_wx'
-let g:qtTagsFile = g:VIMFILESDIR . 'tags_qt4'
-let g:wxPyTagsFile = g:VIMFILESDIR . 'tags_wxpy'
+let g:wxTagsFile = shellescape(g:VIMFILESDIR . 'tags_wx')
+let g:qtTagsFile = shellescape(g:VIMFILESDIR . 'tags_qt4')
+let g:wxPyTagsFile = shellescape(g:VIMFILESDIR . 'tags_wxpy')
 
 " Update types & tags - called with a ! recurses
 command! -bang -bar UpdateTypesFile silent call UpdateTypesFile(<bang>0, 0) | 
@@ -116,7 +116,9 @@ function! ReadTypes(suffix)
 			if filereadable(g:wxTypesFile)
 				execute 'so ' . g:wxTypesFile
 			endif
-			execute 'setlocal tags+=' . g:wxTagsFile
+			if filereadable(g:wxTagsFile)
+				execute 'setlocal tags+=' . g:wxTagsFile
+			endif
 		endif
 
 		call cursor(1,1)
@@ -124,7 +126,9 @@ function! ReadTypes(suffix)
 			if filereadable(g:qtTypesFile)
 				execute 'so ' . g:qtTypesFile
 			endif
-			execute 'setlocal tags+=' . g:qtTagsFile
+			if filereadable(g:qtTagsFile)
+				execute 'setlocal tags+=' . g:qtTagsFile
+			endif
 		endif
 	elseif index(['py', 'pyw'], expand('<afile>:e')) != -1
 		" This is a python source file
@@ -134,7 +138,9 @@ function! ReadTypes(suffix)
 			if filereadable(g:wxPyTypesFile)
 				execute 'so ' . g:wxPyTypesFile
 			endif
-			execute 'setlocal tags+=' . g:wxPyTagsFile
+			if filereadable(g:wxPyTagsFile)
+				execute 'setlocal tags+=' . g:wxPyTagsFile
+			endif
 		endif
 	endif
 endfunction
