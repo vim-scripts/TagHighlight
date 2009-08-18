@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-# Author: A. S. Budden
-# Date:   3rd August 2009
-# Version: r292
+#  Author:  A. S. Budden
+## Date::   17th August 2009     ##
+## RevTag:: r309                 ##
+
 import os
 import sys
 import optparse
@@ -135,30 +136,29 @@ def CreateTagsFile(config, languages, options):
 
 def GetLanguageParameters(lang):
 	params = {}
+	# Default value for iskeyword
+	params['iskeyword'] = '@,48-57,_,192-255'
 	if lang == 'c':
 		params['suffix'] = 'c'
 		params['extensions'] = r'[ch]\w*'
-		params['iskeyword'] = '@,48-57,_,192-255'
 	elif lang == 'python':
 		params['suffix'] = 'py'
 		params['extensions'] = r'pyw?'
-		params['iskeyword'] = '@,48-57,_,192-255'
 	elif lang == 'ruby':
 		params['suffix'] = 'ruby'
 		params['extensions'] = 'rb'
-		params['iskeyword'] = '@,48-57,_,192-255'
 	elif lang == 'java':
 		params['suffix'] = 'java'
 		params['extensions'] = 'java'
-		params['iskeyword'] = '@,48-57,_,192-255'
 	elif lang == 'perl':
 		params['suffix'] = 'pl'
 		params['extensions'] = r'p[lm]'
-		params['iskeyword'] = '@,48-57,_,192-255'
 	elif lang == 'vhdl':
 		params['suffix'] = 'vhdl'
 		params['extensions'] = r'vhdl?'
-		params['iskeyword'] = '@,48-57,_,192-255'
+	elif lang == 'php':
+		params['suffix'] = 'php'
+		params['extensions'] = r'php'
 	else:
 		raise AttributeError('Language not recognised %s' % lang)
 	return params
@@ -515,7 +515,7 @@ def main():
 
 	CreateCScopeFile(options)
 
-	full_language_list = ['c', 'java', 'perl', 'python', 'ruby', 'vhdl']
+	full_language_list = ['c', 'java', 'perl', 'python', 'ruby', 'vhdl', 'php']
 	if len(options.languages) == 0:
 		# Include all languages
 		language_list = full_language_list
