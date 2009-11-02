@@ -1,9 +1,9 @@
-*ctags_highlighting.txt*       Tag Highlighting        23rd May 2009
+*ctags_highlighting.txt*       Tag Highlighting
 
 Author:	    A. S. Budden <abuddenNOSPAM@NOSPAMgmail.com>
 	    Remove NOSPAM.
 
-## RevTag:  r309                                                           ##
+## RevTag:: r340                                                           ##
 
 Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 	    The VIM LICENCE applies to ctags_highlighting.vim, mktypes.py and
@@ -130,7 +130,7 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
     	LocalVariable   : Local Variable
 
     An example of how to highlight one of these would be to include the
-    following line in your colour scheme (see |highlight|):
+    following line in your colour scheme (see |:highlight|):
 >
 	hi Enumerator guifg="c000c0"
 <
@@ -180,10 +180,10 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 	   If this (buffer-local) variable is set to 1, more obscure matches
 	   are included in the syntax highlighter.  The standard highlighter
 	   only highlights tags that are made up of keyword characters (see
-	   |iskeyword|).  If this option is enabled, other tags are
-	   highlighted using |syn-match|.  Note however that this can
+	   |'iskeyword'|).  If this option is enabled, other tags are
+	   highlighted using |:syn-match|.  Note however that this can
 	   seriously slow your Vim down if there are a lot of matches
-	   (|syn-match| is much slower than |syn-keyword|).
+	   (|:syn-match| is much slower than |:syn-keyword|).
     
         b:TypesFileLanguages             *b:TypesFileLanguages*
     
@@ -300,10 +300,29 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
     
     - Tidy up the types files for wxWidgets, Qt and wxPython.
     
-    - The g:*File variables should use |globpath|.
+    - The g:*File variables should use |globpath()|.
 
 ==============================================================================
 5. CTAGS Highlighting History            *ctags_highlighting-history*     {{{1
+
+r340 : 2nd November 2009   : Added missing winrestview().
+
+r330 : 16th September 2009 : Minor Documentation update.
+
+r329 : 16th September 2009 : Added revision output to mktypes.
+
+r328 : 16th September 2009 : Fix for bug with path finding on Windows where
+                             directories in the path end in a backslash.
+
+r326 : 15th September 2009 : Added revision number to debug output.
+
+r324 : 14th September 2009 : Fixed Linux bugs with new implementation.
+
+r321 : 14th September 2009 : Fixed bug with returning to the correct window
+			     after use, added debugging statements and moved
+			     executable search to a separate function.  Also
+			     added preliminary work towards more explicit
+			     type names.
 
 r309 : 17th August 2009    : Added documentation.
 
