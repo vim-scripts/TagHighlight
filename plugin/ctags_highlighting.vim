@@ -1,15 +1,15 @@
 " ctags_highlighting
 "   Author:  A. S. Budden
 "## Date::   19th February 2010      ##
-"## RevTag:: r384                    ##
+"## RevTag:: r387                    ##
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
 endif
 let g:loaded_ctags_highlighting = 1
 
-let s:CTagsHighlighterVersion = "## RevTag:: r384 ##"
-let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '## RevTag:: r384      ##', '\1', '')
+let s:CTagsHighlighterVersion = "## RevTag:: r387 ##"
+let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '## RevTag:: r387      ##', '\1', '')
 
 if !exists('g:VIMFILESDIR')
 	let g:VIMFILESDIR = fnamemodify(globpath(&rtp, 'mktypes.py'), ':p:h')
@@ -306,7 +306,7 @@ func! UpdateTypesFile(recurse, skiptags)
 	let sysoutput = system(sysroot . syscmd) 
 	echo sysroot . syscmd
 	if sysoutput =~ 'python.*is not recognized as an internal or external command'
-		let sysroot = g:VIMFILESDIR . 'extra_source/mktypes/dist/mktypes.exe'
+		let sysroot = g:VIMFILESDIR . '/extra_source/mktypes/dist/mktypes.exe'
 		let sysoutput = sysoutput . "\nUsing compiled mktypes\n" . system(sysroot . syscmd)
 	endif
 
