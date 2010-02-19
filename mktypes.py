@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
-## Date::   16th September 2009  ##
-## RevTag:: r329                 ##
+## Date::   19th February 2010   ##
+## RevTag:: r384                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r329 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r384 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -380,43 +380,25 @@ def CreateTypesFile(config, Parameters, options):
 	for thisMatch in matchEntries:
 		vimtypes_entries.append(thisMatch)
 
-	vimtypes_entries.append('')
-	vimtypes_entries.append('" Class')
-	vimtypes_entries.append('hi link ctags_c ClassName')
-	vimtypes_entries.append('" Define')
-	vimtypes_entries.append('hi link ctags_d DefinedName')
-	vimtypes_entries.append('" Enumerator')
-	vimtypes_entries.append('hi link ctags_e Enumerator')
-	vimtypes_entries.append('" Function or method')
-	vimtypes_entries.append('hi link ctags_f Function')
-	vimtypes_entries.append('hi link ctags_p Function')
-	vimtypes_entries.append('" Enumeration name')
-	vimtypes_entries.append('hi link ctags_g EnumerationName')
-	vimtypes_entries.append('" Member (of structure or class)')
-	vimtypes_entries.append('hi link ctags_m Member')
-	vimtypes_entries.append('" Structure Name')
-	vimtypes_entries.append('hi link ctags_s Structure')
-	vimtypes_entries.append('" Typedef')
-	vimtypes_entries.append('hi link ctags_t Type')
-	vimtypes_entries.append('" Union Name')
-	vimtypes_entries.append('hi link ctags_u Union')
-	vimtypes_entries.append('" Global Constant')
-	vimtypes_entries.append('hi link ctags_k GlobalConstant')
-	vimtypes_entries.append('" Global Variable')
-	vimtypes_entries.append('hi link ctags_v GlobalVariable')
+	LanguageKinds = GetKindList()
+	AddList = 'add='
 
-	if options.include_locals:
-		vimtypes_entries.append('" Local Variable')
-		vimtypes_entries.append('hi link ctags_l LocalVariable')
+	for thisType in allTypes:
+		if thisType in UsedTypes:
+			vimtypes_entries.append('hi link ' + thisType + ' ' + LanguageKinds[Parameters['suffix']][thisType])
+			if AddList != 'add=':
+				AddList += ','
+			AddList += thisType;
+	AddList += ' '
 
 	if Parameters['suffix'] in ['c',]:
 		vimtypes_entries.append('')
 		vimtypes_entries.append("if exists('b:hlrainbow') && !exists('g:nohlrainbow')")
-		vimtypes_entries.append('\tsyn cluster cBracketGroup add=ctags_c,ctags_d,ctags_e,ctags_f,ctags_k,ctags_p,ctags_g,ctags_m,ctags_s,ctags_t,ctags_u,ctags_v' + LocalTagType)
-		vimtypes_entries.append('\tsyn cluster cCppBracketGroup add=ctags_c,ctags_d,ctags_e,ctags_f,ctags_k,ctags_p,ctags_g,ctags_m,ctags_s,ctags_t,ctags_u,ctags_v' + LocalTagType)
-		vimtypes_entries.append('\tsyn cluster cCurlyGroup add=ctags_c,ctags_d,ctags_e,ctags_f,ctags_k,ctags_p,ctags_g,ctags_m,ctags_s,ctags_t,ctags_u,ctags_v' + LocalTagType)
-		vimtypes_entries.append('\tsyn cluster cParenGroup add=ctags_c,ctags_d,ctags_e,ctags_f,ctags_k,ctags_p,ctags_g,ctags_m,ctags_s,ctags_t,ctags_u,ctags_v' + LocalTagType)
-		vimtypes_entries.append('\tsyn cluster cCppParenGroup add=ctags_c,ctags_d,ctags_e,ctags_f,ctags_k,ctags_p,ctags_g,ctags_m,ctags_s,ctags_t,ctags_u,ctags_v' + LocalTagType)
+		vimtypes_entries.append('\tsyn cluster cBracketGroup ' + AddList + LocalTagType)
+		vimtypes_entries.append('\tsyn cluster cCppBracketGroup ' + AddList + LocalTagType)
+		vimtypes_entries.append('\tsyn cluster cCurlyGroup ' + AddList + LocalTagType)
+		vimtypes_entries.append('\tsyn cluster cParenGroup ' + AddList + LocalTagType)
+		vimtypes_entries.append('\tsyn cluster cCppParenGroup ' + AddList + LocalTagType)
 		vimtypes_entries.append('endif')
 
 	try:
@@ -538,387 +520,314 @@ def GetKindList():
 	LanguageKinds = {}
 	LanguageKinds['asm'] = \
 	{
-		'd': 'CTagsDefinedName',
-		'l': 'CTagsLabel',
-		'm': 'CTagsMacro',
-		't': 'CTagsType',
+		'ctags_d': 'CTagsDefinedName',
+		'ctags_l': 'CTagsLabel',
+		'ctags_m': 'CTagsMacro',
+		'ctags_t': 'CTagsType',
 	}
 	LanguageKinds['asp'] = \
 	{
-		'c': 'CTagsConstant',
-		'f': 'CTagsFunction',
-		's': 'CTagsSubroutine',
-		'v': 'CTagsVariable',
+		'ctags_c': 'CTagsConstant',
+		'ctags_f': 'CTagsFunction',
+		'ctags_s': 'CTagsSubroutine',
+		'ctags_v': 'CTagsVariable',
 	}
 	LanguageKinds['awk'] = \
 	{
-		'f': 'CTagsFunction',
+		'ctags_f': 'CTagsFunction',
 	}
 	LanguageKinds['basic'] = \
 	{
-		'c': 'CTagsConstant',
-		'f': 'CTagsFunction',
-		'l': 'CTagsLabel',
-		't': 'CTagsType',
-		'v': 'CTagsVariable',
-		'g': 'CTagsEnumeration',
+		'ctags_c': 'CTagsConstant',
+		'ctags_f': 'CTagsFunction',
+		'ctags_l': 'CTagsLabel',
+		'ctags_t': 'CTagsType',
+		'ctags_v': 'CTagsVariable',
+		'ctags_g': 'CTagsEnumeration',
 	}
 	LanguageKinds['beta'] = \
 	{
-		'f': 'CTagsFragment',
-		'p': 'CTagsPattern',
-		's': 'CTagsSlot',
-		'v': 'CTagsVirtualPattern',
+		'ctags_f': 'CTagsFragment',
+		'ctags_p': 'CTagsPattern',
+		'ctags_s': 'CTagsSlot',
+		'ctags_v': 'CTagsVirtualPattern',
 	}
 	LanguageKinds['c'] = \
 	{
-		'c': 'CTagsClass',
-		'd': 'CTagsDefinedName',
-		'e': 'CTagsEnumerationValue',
-		'f': 'CTagsFunction',
-		'g': 'CTagsEnumeratorName',
-		'l': 'CTagsLocalVariable',
-		'm': 'CTagsMember',
-		'n': 'CTagsNamespace',
-		'p': 'CTagsFunction',
-		's': 'CTagsStructure',
-		't': 'CTagsType',
-		'u': 'CTagsUnion',
-		'v': 'CTagsGlobalVariable',
-		'x': 'CTagsExtern',
+		'ctags_c': 'CTagsClass',
+		'ctags_d': 'CTagsDefinedName',
+		'ctags_e': 'CTagsEnumerationValue',
+		'ctags_f': 'CTagsFunction',
+		'ctags_g': 'CTagsEnumeratorName',
+		'ctags_k': 'CTagsConstant',
+		'ctags_l': 'CTagsLocalVariable',
+		'ctags_m': 'CTagsMember',
+		'ctags_n': 'CTagsNamespace',
+		'ctags_p': 'CTagsFunction',
+		'ctags_s': 'CTagsStructure',
+		'ctags_t': 'CTagsType',
+		'ctags_u': 'CTagsUnion',
+		'ctags_v': 'CTagsGlobalVariable',
+		'ctags_x': 'CTagsExtern',
 	}
 	LanguageKinds['c++'] = \
 	{
-		'c': 'CTagsClass',
-		'd': 'CTagsDefinedName',
-		'e': 'CTagsEnumerator',
-		'f': 'CTagsFunction',
-		'g': 'CTagsEnumerationName',
-		'l': 'CTagsLocalVariable',
-		'm': 'CTagsMember',
-		'n': 'CTagsNamespace',
-		'p': 'CTagsFunction',
-		's': 'CTagsStructure',
-		't': 'CTagsType',
-		'u': 'CTagsUnion',
-		'v': 'CTagsGlobalVariable',
-		'x': 'CTagsExtern',
+		'ctags_c': 'CTagsClass',
+		'ctags_d': 'CTagsDefinedName',
+		'ctags_e': 'CTagsEnumerator',
+		'ctags_f': 'CTagsFunction',
+		'ctags_g': 'CTagsEnumerationName',
+		'ctags_k': 'CTagsConstant',
+		'ctags_l': 'CTagsLocalVariable',
+		'ctags_m': 'CTagsMember',
+		'ctags_n': 'CTagsNamespace',
+		'ctags_p': 'CTagsFunction',
+		'ctags_s': 'CTagsStructure',
+		'ctags_t': 'CTagsType',
+		'ctags_u': 'CTagsUnion',
+		'ctags_v': 'CTagsGlobalVariable',
+		'ctags_x': 'CTagsExtern',
 	}
 	LanguageKinds['c#'] = \
 	{
-		'c': 'CTagsClass',
-		'd': 'CTagsDefinedName',
-		'e': 'CTagsEnumerator',
-		'E': 'CTagsEvent',
-		'f': 'CTagsField',
-		'g': 'CTagsEnumerationName',
-		'i': 'CTagsInterface',
-		'l': 'CTagsLocalVariable',
-		'm': 'CTagsMethod',
-		'n': 'CTagsNamespace',
-		'p': 'CTagsProperty',
-		's': 'CTagsStructure',
-		't': 'CTagsType',
+		'ctags_c': 'CTagsClass',
+		'ctags_d': 'CTagsDefinedName',
+		'ctags_e': 'CTagsEnumerator',
+		'ctags_E': 'CTagsEvent',
+		'ctags_f': 'CTagsField',
+		'ctags_g': 'CTagsEnumerationName',
+		'ctags_i': 'CTagsInterface',
+		'ctags_l': 'CTagsLocalVariable',
+		'ctags_m': 'CTagsMethod',
+		'ctags_n': 'CTagsNamespace',
+		'ctags_p': 'CTagsProperty',
+		'ctags_s': 'CTagsStructure',
+		'ctags_t': 'CTagsType',
 	}
 	LanguageKinds['cobol'] = \
 	{
-		'd': 'CTagsData',
-		'f': 'CTagsFileDescription',
-		'g': 'CTagsGroupItem',
-		'p': 'CTagsParagraph',
-		'P': 'CTagsProgram',
-		's': 'CTagsSection',
+		'ctags_d': 'CTagsData',
+		'ctags_f': 'CTagsFileDescription',
+		'ctags_g': 'CTagsGroupItem',
+		'ctags_p': 'CTagsParagraph',
+		'ctags_P': 'CTagsProgram',
+		'ctags_s': 'CTagsSection',
 	}
 	LanguageKinds['eiffel'] = \
 	{
-		'c': 'CTagsClass',
-		'f': 'CTagsFeature',
-		'l': 'CTagsEntity',
+		'ctags_c': 'CTagsClass',
+		'ctags_f': 'CTagsFeature',
+		'ctags_l': 'CTagsEntity',
 	}
 	LanguageKinds['erlang'] = \
 	{
-		'd': 'CTagsDefinedName',
-		'f': 'CTagsFunction',
-		'm': 'CTagsModule',
-		'r': 'CTagsRecord',
+		'ctags_d': 'CTagsDefinedName',
+		'ctags_f': 'CTagsFunction',
+		'ctags_m': 'CTagsModule',
+		'ctags_r': 'CTagsRecord',
 	}
 	LanguageKinds['fortran'] = \
 	{
-		'b': 'CTagsBlockData',
-		'c': 'CTagsCommonBlocks',
-		'e': 'CTagsEntryPoint',
-		'f': 'CTagsFunction',
-		'i': 'CTagsInterfaceComponent',
-		'k': 'CTagsTypeComponent',
-		'l': 'CTagsLabel',
-		'L': 'CTagsLocalVariable',
-		'm': 'CTagsModule',
-		'n': 'CTagsNamelist',
-		'p': 'CTagsProgram',
-		's': 'CTagsSubroutine',
-		't': 'CTagsType',
-		'v': 'CTagsGlobalVariable',
+		'ctags_b': 'CTagsBlockData',
+		'ctags_c': 'CTagsCommonBlocks',
+		'ctags_e': 'CTagsEntryPoint',
+		'ctags_f': 'CTagsFunction',
+		'ctags_i': 'CTagsInterfaceComponent',
+		'ctags_k': 'CTagsTypeComponent',
+		'ctags_l': 'CTagsLabel',
+		'ctags_L': 'CTagsLocalVariable',
+		'ctags_m': 'CTagsModule',
+		'ctags_n': 'CTagsNamelist',
+		'ctags_p': 'CTagsProgram',
+		'ctags_s': 'CTagsSubroutine',
+		'ctags_t': 'CTagsType',
+		'ctags_v': 'CTagsGlobalVariable',
 	}
 	LanguageKinds['html'] = \
 	{
-		'a': 'CTagsAnchor',
-		'f': 'CTagsFunction',
+		'ctags_a': 'CTagsAnchor',
+		'ctags_f': 'CTagsFunction',
 	}
 	LanguageKinds['java'] = \
 	{
-		'c': 'CTagsClass',
-		'e': 'CTagsEnumerationValue',
-		'f': 'CTagsField',
-		'g': 'CTagsEnumeratorName',
-		'i': 'CTagsInterface',
-		'l': 'CTagsLocalVariable',
-		'm': 'CTagsMethod',
-		'p': 'CTagsPackage',
+		'ctags_c': 'CTagsClass',
+		'ctags_e': 'CTagsEnumerationValue',
+		'ctags_f': 'CTagsField',
+		'ctags_g': 'CTagsEnumeratorName',
+		'ctags_i': 'CTagsInterface',
+		'ctags_l': 'CTagsLocalVariable',
+		'ctags_m': 'CTagsMethod',
+		'ctags_p': 'CTagsPackage',
 	}
 	LanguageKinds['javascript'] = \
 	{
-		'f': 'CTagsFunction',
-		'c': 'CTagsClass',
-		'm': 'CTagsMethod',
-		'p': 'CTagsProperty',
-		'v': 'CTagsGlobalVariable',
+		'ctags_f': 'CTagsFunction',
+		'ctags_c': 'CTagsClass',
+		'ctags_m': 'CTagsMethod',
+		'ctags_p': 'CTagsProperty',
+		'ctags_v': 'CTagsGlobalVariable',
 	}
 	LanguageKinds['lisp'] = \
 	{
-		'f': 'CTagsFunction',
+		'ctags_f': 'CTagsFunction',
 	}
 	LanguageKinds['lua'] = \
 	{
-		'f': 'CTagsFunction',
+		'ctags_f': 'CTagsFunction',
 	}
 	LanguageKinds['make'] = \
 	{
-		'm': 'CTagsFunction',
+		'ctags_m': 'CTagsFunction',
 	}
 	LanguageKinds['pascal'] = \
 	{
-		'f': 'CTagsFunction',
-		'p': 'CTagsFunction',
+		'ctags_f': 'CTagsFunction',
+		'ctags_p': 'CTagsFunction',
 	}
 	LanguageKinds['perl'] = \
 	{
-		'c': 'CTagsGlobalConstant',
-		'f': 'CTagsFormat',
-		'l': 'CTagsLabel',
-		'p': 'CTagsPackage',
-		's': 'CTagsFunction',
-		'd': 'CTagsFunction',
+		'ctags_c': 'CTagsGlobalConstant',
+		'ctags_f': 'CTagsFormat',
+		'ctags_l': 'CTagsLabel',
+		'ctags_p': 'CTagsPackage',
+		'ctags_s': 'CTagsFunction',
+		'ctags_d': 'CTagsFunction',
 	}
 	LanguageKinds['php'] = \
 	{
-		'c': 'CTagsClass',
-		'i': 'CTagsInterface',
-		'd': 'CTagsGlobalConstant',
-		'f': 'CTagsFunction',
-		'v': 'CTagsGlobalVariable',
-		'j': 'CTagsFunction',
+		'ctags_c': 'CTagsClass',
+		'ctags_i': 'CTagsInterface',
+		'ctags_d': 'CTagsGlobalConstant',
+		'ctags_f': 'CTagsFunction',
+		'ctags_v': 'CTagsGlobalVariable',
+		'ctags_j': 'CTagsFunction',
 	}
 	LanguageKinds['python'] = \
 	{
-		'c': 'CTagsClass',
-		'f': 'CTagsFunction',
-		'm': 'CTagsMember',
-		'v': 'CTagsGlobalVariable',
+		'ctags_c': 'CTagsClass',
+		'ctags_f': 'CTagsFunction',
+		'ctags_m': 'CTagsMember',
+		'ctags_v': 'CTagsGlobalVariable',
 	}
 	LanguageKinds['rexx'] = \
 	{
-		's': 'CTagsFunction',
+		'ctags_s': 'CTagsFunction',
 	}
 	LanguageKinds['ruby'] = \
 	{
-		'c': 'CTagsClass',
-		'f': 'CTagsMethod',
-		'm': 'CTagsModule',
-		'F': 'CTagsSingleton',
+		'ctags_c': 'CTagsClass',
+		'ctags_f': 'CTagsMethod',
+		'ctags_m': 'CTagsModule',
+		'ctags_F': 'CTagsSingleton',
 	}
 	LanguageKinds['scheme'] = \
 	{
-		'f': 'CTagsFunction',
-		's': 'CTagsSet',
+		'ctags_f': 'CTagsFunction',
+		'ctags_s': 'CTagsSet',
 	}
 	LanguageKinds['sh'] = \
 	{
-		'f': 'CTagsFunction',
+		'ctags_f': 'CTagsFunction',
 	}
 	LanguageKinds['slang'] = \
 	{
-		'f': 'CTagsFunction',
-		'n': 'CTagsNamespace',
+		'ctags_f': 'CTagsFunction',
+		'ctags_n': 'CTagsNamespace',
 	}
 	LanguageKinds['sml'] = \
 	{
-		'e': 'CTagsException',
-		'f': 'CTagsFunction',
-		'c': 'CTagsFunctionObject',
-		's': 'CTagsSignature',
-		'r': 'CTagsStructure',
-		't': 'CTagsType',
-		'v': 'CTagsGlobalVariable',
+		'ctags_e': 'CTagsException',
+		'ctags_f': 'CTagsFunction',
+		'ctags_c': 'CTagsFunctionObject',
+		'ctags_s': 'CTagsSignature',
+		'ctags_r': 'CTagsStructure',
+		'ctags_t': 'CTagsType',
+		'ctags_v': 'CTagsGlobalVariable',
 	}
 	LanguageKinds['sql'] = \
 	{
-		'c': 'CTagsCursor',
-		'd': 'CTagsFunction',
-		'f': 'CTagsFunction',
-		'F': 'CTagsField',
-		'l': 'CTagsLocalVariable',
-		'L': 'CTagsLabel',
-		'P': 'CTagsPackage',
-		'p': 'CTagsFunction',
-		'r': 'CTagsRecord',
-		's': 'CTagsType',
-		't': 'CTagsTable',
-		'T': 'CTagsTrigger',
-		'v': 'CTagsGlobalVariable',
-		'i': 'CTagsIndex',
-		'e': 'CTagsEvent',
-		'U': 'CTagsPublication',
-		'R': 'CTagsService',
-		'D': 'CTagsDomain',
-		'V': 'CTagsView',
-		'n': 'CTagsSynonym',
+		'ctags_c': 'CTagsCursor',
+		'ctags_d': 'CTagsFunction',
+		'ctags_f': 'CTagsFunction',
+		'ctags_F': 'CTagsField',
+		'ctags_l': 'CTagsLocalVariable',
+		'ctags_L': 'CTagsLabel',
+		'ctags_P': 'CTagsPackage',
+		'ctags_p': 'CTagsFunction',
+		'ctags_r': 'CTagsRecord',
+		'ctags_s': 'CTagsType',
+		'ctags_t': 'CTagsTable',
+		'ctags_T': 'CTagsTrigger',
+		'ctags_v': 'CTagsGlobalVariable',
+		'ctags_i': 'CTagsIndex',
+		'ctags_e': 'CTagsEvent',
+		'ctags_U': 'CTagsPublication',
+		'ctags_R': 'CTagsService',
+		'ctags_D': 'CTagsDomain',
+		'ctags_V': 'CTagsView',
+		'ctags_n': 'CTagsSynonym',
 	}
 	LanguageKinds['tcl'] = \
 	{
-		'c': 'CTagsClass',
-		'm': 'CTagsMethod',
-		'p': 'CTagsFunction',
+		'ctags_c': 'CTagsClass',
+		'ctags_m': 'CTagsMethod',
+		'ctags_p': 'CTagsFunction',
 	}
 	LanguageKinds['vera'] = \
 	{
-		'c': 'CTagsClass',
-		'd': 'CTagsDefinedName',
-		'e': 'CTagsEnumerationValue',
-		'f': 'CTagsFunction',
-		'g': 'CTagsEnumeratorName',
-		'l': 'CTagsLocalVariable',
-		'm': 'CTagsMember',
-		'p': 'CTagsProgram',
-		'P': 'CTagsFunction',
-		't': 'CTagsTask',
-		'T': 'CTagsType',
-		'v': 'CTagsGlobalVariable',
-		'x': 'CTagsExtern',
+		'ctags_c': 'CTagsClass',
+		'ctags_d': 'CTagsDefinedName',
+		'ctags_e': 'CTagsEnumerationValue',
+		'ctags_f': 'CTagsFunction',
+		'ctags_g': 'CTagsEnumeratorName',
+		'ctags_l': 'CTagsLocalVariable',
+		'ctags_m': 'CTagsMember',
+		'ctags_p': 'CTagsProgram',
+		'ctags_P': 'CTagsFunction',
+		'ctags_t': 'CTagsTask',
+		'ctags_T': 'CTagsType',
+		'ctags_v': 'CTagsGlobalVariable',
+		'ctags_x': 'CTagsExtern',
 	}
 	LanguageKinds['verilog'] = \
 	{
-		'c': 'CTagsGlobalConstant',
-		'e': 'CTagsEvent',
-		'f': 'CTagsFunction',
-		'm': 'CTagsModule',
-		'n': 'CTagsNetType',
-		'p': 'CTagsPort',
-		'r': 'CTagsRegisterType',
-		't': 'CTagsTask',
+		'ctags_c': 'CTagsGlobalConstant',
+		'ctags_e': 'CTagsEvent',
+		'ctags_f': 'CTagsFunction',
+		'ctags_m': 'CTagsModule',
+		'ctags_n': 'CTagsNetType',
+		'ctags_p': 'CTagsPort',
+		'ctags_r': 'CTagsRegisterType',
+		'ctags_t': 'CTagsTask',
 	}
 	LanguageKinds['vhdl'] = \
 	{
-		'c': 'CTagsGlobalConstant',
-		't': 'CTagsType',
-		'T': 'CTagsTypeComponent',
-		'r': 'CTagsRecord',
-		'e': 'CTagsEntity',
-		'C': 'CTagsComponent',
-		'd': 'CTagsPrototype',
-		'f': 'CTagsFunction',
-		'p': 'CTagsFunction',
-		'P': 'CTagsPackage',
-		'l': 'CTagsLocalVariable',
+		'ctags_c': 'CTagsGlobalConstant',
+		'ctags_t': 'CTagsType',
+		'ctags_T': 'CTagsTypeComponent',
+		'ctags_r': 'CTagsRecord',
+		'ctags_e': 'CTagsEntity',
+		'ctags_C': 'CTagsComponent',
+		'ctags_d': 'CTagsPrototype',
+		'ctags_f': 'CTagsFunction',
+		'ctags_p': 'CTagsFunction',
+		'ctags_P': 'CTagsPackage',
+		'ctags_l': 'CTagsLocalVariable',
 	}
 	LanguageKinds['vim'] = \
 	{
-		'a': 'CTagsAutoCommand',
-		'c': 'CTagsCommand',
-		'f': 'CTagsFunction',
-		'm': 'CTagsMap',
-		'v': 'CTagsGlobalVariable',
+		'ctags_a': 'CTagsAutoCommand',
+		'ctags_c': 'CTagsCommand',
+		'ctags_f': 'CTagsFunction',
+		'ctags_m': 'CTagsMap',
+		'ctags_v': 'CTagsGlobalVariable',
 	}
 	LanguageKinds['yacc'] = \
 	{
-		'l': 'CTagsLabel',
+		'ctags_l': 'CTagsLabel',
 	}
+	return LanguageKinds
 
 	
 if __name__ == "__main__":
 	main()
-
-"""
-CTagsAnchor
-CTagsAutoCommand
-CTagsBlockData
-CTagsClass
-CTagsCommand
-CTagsCommonBlocks
-CTagsComponent
-CTagsConstant
-CTagsCursor
-CTagsData
-CTagsDefinedName
-CTagsDomain
-CTagsEntity
-CTagsEntryPoint
-CTagsEnumeration
-CTagsEnumerationName
-CTagsEnumerationValue
-CTagsEnumerator
-CTagsEnumeratorName
-CTagsEvent
-CTagsException
-CTagsExtern
-CTagsFeature
-CTagsField
-CTagsFileDescription
-CTagsFormat
-CTagsFragment
-CTagsFunction
-CTagsFunctionObject
-CTagsGlobalConstant
-CTagsGlobalVariable
-CTagsGroupItem
-CTagsIndex
-CTagsInterface
-CTagsInterfaceComponent
-CTagsLabel
-CTagsLocalVariable
-CTagsMacro
-CTagsMap
-CTagsMember
-CTagsMethod
-CTagsModule
-CTagsNamelist
-CTagsNamespace
-CTagsNetType
-CTagsPackage
-CTagsParagraph
-CTagsPattern
-CTagsPort
-CTagsProgram
-CTagsProperty
-CTagsPrototype
-CTagsPublication
-CTagsRecord
-CTagsRegisterType
-CTagsSection
-CTagsService
-CTagsSet
-CTagsSignature
-CTagsSingleton
-CTagsSlot
-CTagsStructure
-CTagsSubroutine
-CTagsSynonym
-CTagsTable
-CTagsTask
-CTagsTrigger
-CTagsType
-CTagsTypeComponent
-CTagsUnion
-CTagsVariable
-CTagsView
-CTagsVirtualPattern
-"""

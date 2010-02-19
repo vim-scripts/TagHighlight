@@ -3,7 +3,7 @@
 Author:	    A. S. Budden <abuddenNOSPAM@NOSPAMgmail.com>
 	    Remove NOSPAM.
 
-## RevTag:: r340                                                           ##
+## RevTag:: r384                                                           ##
 
 Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 	    The VIM LICENCE applies to ctags_highlighting.vim, mktypes.py and
@@ -299,11 +299,21 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
       buffer-local variables.
     
     - Tidy up the types files for wxWidgets, Qt and wxPython.
-    
-    - The g:*File variables should use |globpath()|.
+
+    - Make it work when Vim is installed in a path with spaces.
 
 ==============================================================================
 5. CTAGS Highlighting History            *ctags_highlighting-history*     {{{1
+
+r384 : 19th February 2010  : Improvements to VIMFILESDIR identification.
+                             Re-architecture of type definitions to make
+                             them more sensitive to different ctags "kinds"
+                             for different languages.  Note that Enumerator
+                             has been renamed to EnumerationValue: the latest
+                             Bandit Colour Scheme supports this.
+
+r382 : 13th February 2010  : Fixed escaping of paths and operation of
+                             ReadTypes when not in an autocommand.
 
 r340 : 2nd November 2009   : Added missing winrestview().
 

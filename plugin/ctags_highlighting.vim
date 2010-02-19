@@ -1,24 +1,18 @@
 " ctags_highlighting
 "   Author:  A. S. Budden
-"## Date::   2nd November 2009       ##
-"## RevTag:: r340                    ##
+"## Date::   19th February 2010      ##
+"## RevTag:: r384                    ##
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
 endif
 let g:loaded_ctags_highlighting = 1
 
-let s:CTagsHighlighterVersion = "## RevTag:: r340 ##"
-let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '## RevTag:: r340      ##', '\1', '')
+let s:CTagsHighlighterVersion = "## RevTag:: r384 ##"
+let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '## RevTag:: r384      ##', '\1', '')
 
 if !exists('g:VIMFILESDIR')
-	if has("unix")
-		let g:VIMFILESDIR = $HOME . "/.vim/"
-	endif
-
-	if has("win32")
-		let g:VIMFILESDIR = $VIM . "/vimfiles/"
-	endif
+	let g:VIMFILESDIR = fnamemodify(globpath(&rtp, 'mktypes.py'), ':p:h')
 endif
 
 let g:DBG_None        = 0
@@ -35,14 +29,14 @@ endif
 " These should only be included if editing a wx or qt file
 " They should also be updated to include all functions etc, not just
 " typedefs
-let g:wxTypesFile = shellescape(g:VIMFILESDIR . "types_wx.vim")
-let g:qtTypesFile = shellescape(g:VIMFILESDIR . "types_qt4.vim")
-let g:wxPyTypesFile = shellescape(g:VIMFILESDIR . "types_wxpy.vim")
+let g:wxTypesFile = escape(globpath(&rtp, "types_wx.vim"), ' \,')
+let g:qtTypesFile = escape(globpath(&rtp, "types_qt4.vim"), ' \,')
+let g:wxPyTypesFile = escape(globpath(&rtp, "types_wxpy.vim"), ' \,')
 
 " These should only be included if editing a wx or qt file
-let g:wxTagsFile = shellescape(g:VIMFILESDIR . 'tags_wx')
-let g:qtTagsFile = shellescape(g:VIMFILESDIR . 'tags_qt4')
-let g:wxPyTagsFile = shellescape(g:VIMFILESDIR . 'tags_wxpy')
+let g:wxTagsFile = escape(globpath(&rtp, 'tags_wx'), ' \,')
+let g:qtTagsFile = escape(globpath(&rtp, 'tags_qt4'), ' \,')
+let g:wxPyTagsFile = escape(globpath(&rtp, 'tags_wxpy'), ' \,')
 
 " Update types & tags - called with a ! recurses
 command! -bang -bar UpdateTypesFile silent call UpdateTypesFile(<bang>0, 0) | 
@@ -98,12 +92,17 @@ endfunction
 function! ReadTypes(suffix)
 	let savedView = winsaveview()
 
+	let file = '<afile>'
+	if len(expand(file)) == 0
+		let file = '%'
+	endif
+
 	if exists('b:NoTypeParsing')
 		return
 	endif
 	if exists('g:TypeParsingSkipList')
-		let basename = expand('<afile>:p:t')
-		let fullname = expand('<afile>:p')
+		let basename = expand(file . ':p:t')
+		let fullname = expand(file . ':p')
 		if index(g:TypeParsingSkipList, basename) != -1
 			return
 		endif
@@ -111,11 +110,11 @@ function! ReadTypes(suffix)
 			return
 		endif
 	endif
-	let fname = expand('<afile>:p:h') . '/types_' . a:suffix . '.vim'
+	let fname = expand(file . ':p:h') . '/types_' . a:suffix . '.vim'
 	if filereadable(fname)
 		exe 'so ' . fname
 	endif
-	let fname = expand('<afile>:p:h:h') . '/types_' . a:suffix . '.vim'
+	let fname = expand(file . ':p:h:h') . '/types_' . a:suffix . '.vim'
 	if filereadable(fname)
 		exe 'so ' . fname
 	endif
@@ -125,7 +124,7 @@ function! ReadTypes(suffix)
 	endif
 
 	" Open default source files
-	if index(['cpp', 'h', 'hpp'], expand('<afile>:e')) != -1
+	if index(['cpp', 'h', 'hpp'], expand(file . ':e')) != -1
 		" This is a C++ source file
 		call cursor(1,1)
 		if search('^\s*#include\s\+<wx/', 'nc', 30)
@@ -138,15 +137,16 @@ function! ReadTypes(suffix)
 		endif
 
 		call cursor(1,1)
-		if search('^\s*#include\s\+<q', 'nc', 30)
+		if search('\c^\s*#include\s\+<q', 'nc', 30)
 			if filereadable(g:qtTypesFile)
 				execute 'so ' . g:qtTypesFile
 			endif
 			if filereadable(g:qtTagsFile)
 				execute 'setlocal tags+=' . g:qtTagsFile
 			endif
+		else
 		endif
-	elseif index(['py', 'pyw'], expand('<afile>:e')) != -1
+	elseif index(['py', 'pyw'], expand(file . ':e')) != -1
 		" This is a python source file
 
 		call cursor(1,1)
@@ -326,3 +326,85 @@ func! UpdateTypesFile(recurse, skiptags)
 
 endfunc
 
+let tagnames = 
+			\ [
+			\ 		'CTagsAnchor',
+			\ 		'CTagsAutoCommand',
+			\ 		'CTagsBlockData',
+			\ 		'CTagsClass',
+			\ 		'CTagsCommand',
+			\ 		'CTagsCommonBlocks',
+			\ 		'CTagsComponent',
+			\ 		'CTagsConstant',
+			\ 		'CTagsCursor',
+			\ 		'CTagsData',
+			\ 		'CTagsDefinedName',
+			\ 		'CTagsDomain',
+			\ 		'CTagsEntity',
+			\ 		'CTagsEntryPoint',
+			\ 		'CTagsEnumeration',
+			\ 		'CTagsEnumerationName',
+			\ 		'CTagsEnumerationValue',
+			\ 		'CTagsEnumerator',
+			\ 		'CTagsEnumeratorName',
+			\ 		'CTagsEvent',
+			\ 		'CTagsException',
+			\ 		'CTagsExtern',
+			\ 		'CTagsFeature',
+			\ 		'CTagsField',
+			\ 		'CTagsFileDescription',
+			\ 		'CTagsFormat',
+			\ 		'CTagsFragment',
+			\ 		'CTagsFunction',
+			\ 		'CTagsFunctionObject',
+			\ 		'CTagsGlobalConstant',
+			\ 		'CTagsGlobalVariable',
+			\ 		'CTagsGroupItem',
+			\ 		'CTagsIndex',
+			\ 		'CTagsInterface',
+			\ 		'CTagsInterfaceComponent',
+			\ 		'CTagsLabel',
+			\ 		'CTagsLocalVariable',
+			\ 		'CTagsMacro',
+			\ 		'CTagsMap',
+			\ 		'CTagsMember',
+			\ 		'CTagsMethod',
+			\ 		'CTagsModule',
+			\ 		'CTagsNamelist',
+			\ 		'CTagsNamespace',
+			\ 		'CTagsNetType',
+			\ 		'CTagsPackage',
+			\ 		'CTagsParagraph',
+			\ 		'CTagsPattern',
+			\ 		'CTagsPort',
+			\ 		'CTagsProgram',
+			\ 		'CTagsProperty',
+			\ 		'CTagsPrototype',
+			\ 		'CTagsPublication',
+			\ 		'CTagsRecord',
+			\ 		'CTagsRegisterType',
+			\ 		'CTagsSection',
+			\ 		'CTagsService',
+			\ 		'CTagsSet',
+			\ 		'CTagsSignature',
+			\ 		'CTagsSingleton',
+			\ 		'CTagsSlot',
+			\ 		'CTagsStructure',
+			\ 		'CTagsSubroutine',
+			\ 		'CTagsSynonym',
+			\ 		'CTagsTable',
+			\ 		'CTagsTask',
+			\ 		'CTagsTrigger',
+			\ 		'CTagsType',
+			\ 		'CTagsTypeComponent',
+			\ 		'CTagsUnion',
+			\ 		'CTagsVariable',
+			\ 		'CTagsView',
+			\ 		'CTagsVirtualPattern',
+			\ ]
+
+for tagname in tagnames
+	let simplename = substitute(tagname, '^CTags', '', '')
+	exe 'hi default link' tagname simplename
+	exe 'hi default link' simplename 'Keyword'
+endfor
