@@ -1,15 +1,15 @@
 " ctags_highlighting
 "   Author:  A. S. Budden
-"## Date::   19th February 2010      ##
-"## RevTag:: r387                    ##
+"## Date::   2nd March 2010          ##
+"## RevTag:: r390                    ##
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
 endif
 let g:loaded_ctags_highlighting = 1
 
-let s:CTagsHighlighterVersion = "## RevTag:: r387 ##"
-let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '## RevTag:: r387      ##', '\1', '')
+let s:CTagsHighlighterVersion = "## RevTag:: r390 ##"
+let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '## RevTag:: r390      ##', '\1', '')
 
 if !exists('g:VIMFILESDIR')
 	let g:VIMFILESDIR = fnamemodify(globpath(&rtp, 'mktypes.py'), ':p:h')
@@ -63,6 +63,7 @@ autocmd BufRead,BufNewFile *.pyw    call ReadTypes('py')
 autocmd BufRead,BufNewFile *.rb     call ReadTypes('ruby')
 autocmd BufRead,BufNewFile *.vhd*   call ReadTypes('vhdl')
 autocmd BufRead,BufNewFile *.php    call ReadTypes('php')
+autocmd BufRead,BufNewFile *.cs     call ReadTypes('cs')
 
 command! ReadTypes call ReadTypesAutoDetect()
 
@@ -75,6 +76,7 @@ function! ReadTypesAutoDetect()
 				\     'java'         : "java",
 				\     'pyw\?'        : "py",
 				\     'rb'           : "ruby",
+				\     'cs'           : "cs",
 				\     'php'          : "php",
 				\     'vhdl\?'       : "vhdl",
 				\ }
