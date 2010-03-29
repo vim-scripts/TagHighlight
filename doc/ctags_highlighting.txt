@@ -3,7 +3,7 @@
 Author:	    A. S. Budden <abuddenNOSPAM@NOSPAMgmail.com>
 	    Remove NOSPAM.
 
-## RevTag:: r391                                                           ##
+## RevTag:: r396                                                           ##
 
 Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 	    The VIM LICENCE applies to ctags_highlighting.vim, mktypes.py and
@@ -304,6 +304,11 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 
 ==============================================================================
 5. CTAGS Highlighting History            *ctags_highlighting-history*     {{{1
+
+r396 : 29th March 2010     : Factored out old ctags_[a-z] types to improve
+                             language support.
+
+r394 : 26th March 2010     : Fix for python use.
 
 r391 : 2nd March 2010      : Fix for ctags names.
 

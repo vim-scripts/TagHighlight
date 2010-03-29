@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
-## Date::   2nd March 2010       ##
-## RevTag:: r391                 ##
+## Date::   29th March 2010      ##
+## RevTag:: r396                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r391 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r396 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -31,8 +31,7 @@ r'''
 	.*                # If it is followed by a tab, soak up the rest of the line; replace with the syntax keyword line
 ''', re.VERBOSE)
 
-field_trim = re.compile(r'ctags_[pF]')
-field_keyword = re.compile(r'syntax keyword (?P<kind>ctags_\w) (?P<keyword>.*)')
+field_keyword = re.compile(r'syntax keyword (?P<kind>CTags\w+) (?P<keyword>.*)')
 field_const = re.compile(r'\bconst\b')
 
 vim_synkeyword_arguments = [
@@ -142,27 +141,35 @@ def GetLanguageParameters(lang):
 	params['iskeyword'] = '@,48-57,_,192-255'
 	if lang == 'c':
 		params['suffix'] = 'c'
+		params['name'] = 'c'
 		params['extensions'] = r'[ch]\w*'
 	elif lang == 'python':
 		params['suffix'] = 'py'
+		params['name'] = 'python'
 		params['extensions'] = r'pyw?'
 	elif lang == 'ruby':
 		params['suffix'] = 'ruby'
+		params['name'] = 'ruby'
 		params['extensions'] = 'rb'
 	elif lang == 'java':
 		params['suffix'] = 'java'
+		params['name'] = 'java'
 		params['extensions'] = 'java'
 	elif lang == 'perl':
 		params['suffix'] = 'pl'
+		params['name'] = 'perl'
 		params['extensions'] = r'p[lm]'
 	elif lang == 'vhdl':
 		params['suffix'] = 'vhdl'
+		params['name'] = 'vhdl'
 		params['extensions'] = r'vhdl?'
 	elif lang == 'php':
 		params['suffix'] = 'php'
+		params['name'] = 'php'
 		params['extensions'] = r'php'
 	elif lang == 'c#':
 		params['suffix'] = 'cs'
+		params['name'] = 'c#'
 		params['extensions'] = 'cs'
 	else:
 		raise AttributeError('Language not recognised %s' % lang)
@@ -243,6 +250,7 @@ def CreateTypesFile(config, Parameters, options):
 	else:
 		LocalTagType = ''
 
+	KindList = GetKindList()[Parameters['name']]
 	ctags_entries = []
 	while 1:
 		line = p.readline()
@@ -254,13 +262,13 @@ def CreateTypesFile(config, Parameters, options):
 
 		m = field_processor.match(line.strip())
 		if m is not None:
-			vimmed_line = 'syntax keyword ctags_' + m.group('kind') + ' ' + m.group('keyword')
+			vimmed_line = 'syntax keyword ' + KindList['ctags_' + m.group('kind')] + ' ' + m.group('keyword')
 
 			if options.parse_constants and (Parameters['suffix'] == 'c') and (m.group('kind') == 'v'):
 				if field_const.search(m.group('search')) is not None:
-					vimmed_line = vimmed_line.replace('ctags_v', 'ctags_k')
+					vimmed_line = vimmed_line.replace('CTagsGlobalVariable', 'CTagsConstant')
 
-			if not field_trim.match(vimmed_line):
+			if Parameters['suffix'] != 'c' or m.group('kind') != 'p':
 				ctags_entries.append(vimmed_line)
 	
 	p.close()
@@ -292,7 +300,6 @@ def CreateTypesFile(config, Parameters, options):
 
 	patternCharacters = "/@#':"
 	charactersToEscape = '\\' + '~[]*.$^'
-	KindList = GetKindList()[Parameters['suffix']]
 
 	if not options.include_locals:
 		remove_list = []
@@ -305,7 +312,7 @@ def CreateTypesFile(config, Parameters, options):
 			except KeyError:
 				pass
 
-	UsedTypes = KindList.keys()
+	UsedTypes = KindList.values()
 
 	clear_string += " ".join(UsedTypes)
 
@@ -314,10 +321,10 @@ def CreateTypesFile(config, Parameters, options):
 
 	# Specified highest priority first
 	Priority = [
-			'ctags_c', 'ctags_d', 'ctags_t',
-			'ctags_p', 'ctags_f', 'ctags_e',
-			'ctags_g', 'ctags_k', 'ctags_v',
-			'ctags_u', 'ctags_m', 'ctags_s',
+			'CTagsClass', 'CTagsDefinedName', 'CTagsType',
+			'CTagsFunction', 'CTagsEnumerationValue',
+			'CTagsEnumeratorName', 'CTagsConstant', 'CTagsGlobalVariable',
+			'CTagsUnion', 'CTagsMember', 'CTagsStructure',
 			]
 
 	# Reverse the list as highest priority should be last!
@@ -333,7 +340,7 @@ def CreateTypesFile(config, Parameters, options):
 			typeList.remove(thisType)
 	for thisType in typeList:
 		allTypes.append(thisType)
-#   print allTypes
+	#print allTypes
 
 	for thisType in allTypes:
 		if thisType not in UsedTypes:
@@ -394,7 +401,6 @@ def CreateTypesFile(config, Parameters, options):
 
 	for thisType in allTypes:
 		if thisType in UsedTypes:
-			vimtypes_entries.append('hi link ' + thisType + ' ' + LanguageKinds[Parameters['suffix']][thisType])
 			if AddList != 'add=':
 				AddList += ','
 			AddList += thisType;
@@ -597,7 +603,7 @@ def GetKindList():
 		'ctags_v': 'CTagsGlobalVariable',
 		'ctags_x': 'CTagsExtern',
 	}
-	LanguageKinds['cs'] = \
+	LanguageKinds['c#'] = \
 	{
 		'ctags_c': 'CTagsClass',
 		'ctags_d': 'CTagsDefinedName',
