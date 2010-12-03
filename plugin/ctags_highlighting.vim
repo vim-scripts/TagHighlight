@@ -1,15 +1,15 @@
 " ctags_highlighting
 "   Author:  A. S. Budden
-"## Date::   2nd March 2010          ##
-"## RevTag:: r390                    ##
+"## Date::   2nd December 2010       ##
+"## RevTag:: r429                    ##
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
 endif
 let g:loaded_ctags_highlighting = 1
 
-let s:CTagsHighlighterVersion = "## RevTag:: r390 ##"
-let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '## RevTag:: r390      ##', '\1', '')
+let s:CTagsHighlighterVersion = "## RevTag:: r429 ##"
+let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '[#]\{2} RevTag[:]\{2} \(r\d\+\) *[#]\{2}', '\1', '')
 
 if !exists('g:VIMFILESDIR')
 	let g:VIMFILESDIR = fnamemodify(globpath(&rtp, 'mktypes.py'), ':p:h')
@@ -29,9 +29,11 @@ endif
 " These should only be included if editing a wx or qt file
 " They should also be updated to include all functions etc, not just
 " typedefs
-let g:wxTypesFile = escape(globpath(&rtp, "types_wx.vim"), ' \,')
-let g:qtTypesFile = escape(globpath(&rtp, "types_qt4.vim"), ' \,')
-let g:wxPyTypesFile = escape(globpath(&rtp, "types_wxpy.vim"), ' \,')
+let g:wxTypesFile = escape(globpath(&rtp, "types_wx.vim"), '\,')
+let g:qtTypesFile = escape(globpath(&rtp, "types_qt4.vim"), '\,')
+let g:wxPyTypesFile = escape(globpath(&rtp, "types_wxpy.vim"), '\,')
+let g:jdkTypesFile = escape(globpath(&rtp, "types_jdk.vim"), '\,')
+let g:androidTypesFile = escape(globpath(&rtp, "types_android.vim"), '\,')
 
 " These should only be included if editing a wx or qt file
 let g:wxTagsFile = escape(globpath(&rtp, 'tags_wx'), ' \,')
@@ -81,11 +83,12 @@ function! ReadTypesAutoDetect()
 				\     'vhdl\?'       : "vhdl",
 				\ }
 
+	call s:Debug_Print(g:DBG_Information, "Detecting types for extension '" . extension . "'")
 	for key in keys(extensionLookup)
 		let regex = '^' . key . '$'
 		if extension =~ regex
+			call s:Debug_Print(g:DBG_Information, "Loading types for extension '" . extensionLookup[key] . "'")
 			call ReadTypes(extensionLookup[key])
-			"			echo 'Loading types for ' . extensionLookup[key] . ' files'
 			continue
 		endif
 	endfor
@@ -100,37 +103,49 @@ function! ReadTypes(suffix)
 	endif
 
 	if exists('b:NoTypeParsing')
+		call s:Debug_Print(g:DBG_Information, "Type file parsing disabled")
 		return
 	endif
 	if exists('g:TypeParsingSkipList')
 		let basename = expand(file . ':p:t')
 		let fullname = expand(file . ':p')
 		if index(g:TypeParsingSkipList, basename) != -1
+			call s:Debug_Print(g:DBG_Information, "Skipping file due to basename match")
 			return
 		endif
 		if index(g:TypeParsingSkipList, fullname) != -1
+			call s:Debug_Print(g:DBG_Information, "Skipping file due to fullname match")
 			return
 		endif
 	endif
 	let fname = expand(file . ':p:h') . '/types_' . a:suffix . '.vim'
+	call s:Debug_Print(g:DBG_Information, "Checking for file " . fname)
 	if filereadable(fname)
+		call s:Debug_Print(g:DBG_Information, "Found")
 		exe 'so ' . fname
 	endif
 	let fname = expand(file . ':p:h:h') . '/types_' . a:suffix . '.vim'
+	call s:Debug_Print(g:DBG_Information, "Checking for file " . fname)
 	if filereadable(fname)
+		call s:Debug_Print(g:DBG_Information, "Found")
 		exe 'so ' . fname
 	endif
 	let fname = 'types_' . a:suffix . '.vim'
+	call s:Debug_Print(g:DBG_Information, "Checking for file " . fname)
 	if filereadable(fname)
+		call s:Debug_Print(g:DBG_Information, "Found")
 		exe 'so ' . fname
 	endif
 
 	" Open default source files
 	if index(['cpp', 'h', 'hpp'], expand(file . ':e')) != -1
+		call s:Debug_Print(g:DBG_Information, 'C++ source file, checking for wx/Qt')
 		" This is a C++ source file
 		call cursor(1,1)
 		if search('^\s*#include\s\+<wx/', 'nc', 30)
+			call s:Debug_Print(g:DBG_Information, 'WxWidgets Source file - checking ' . g:wxTypesFile . '"')
 			if filereadable(g:wxTypesFile)
+				call s:Debug_Print(g:DBG_Information, 'Loading wx types')
 				execute 'so ' . g:wxTypesFile
 			endif
 			if filereadable(g:wxTagsFile)
@@ -140,7 +155,9 @@ function! ReadTypes(suffix)
 
 		call cursor(1,1)
 		if search('\c^\s*#include\s\+<q', 'nc', 30)
+			call s:Debug_Print(g:DBG_Information, 'Qt Source file - checking "' . g:qtTypesFile . '"')
 			if filereadable(g:qtTypesFile)
+				call s:Debug_Print(g:DBG_Information, 'Loading Qt4 types')
 				execute 'so ' . g:qtTypesFile
 			endif
 			if filereadable(g:qtTagsFile)
@@ -150,14 +167,32 @@ function! ReadTypes(suffix)
 		endif
 	elseif index(['py', 'pyw'], expand(file . ':e')) != -1
 		" This is a python source file
+		call s:Debug_Print(g:DBG_Information, 'Python source file, checking for wx')
 
 		call cursor(1,1)
 		if search('^\s*import\s\+wx', 'nc', 30)
+			call s:Debug_Print(g:DBG_Information, 'wxPython Source file - checking "' . g:wxPyTypesFile . '"')
 			if filereadable(g:wxPyTypesFile)
+				call s:Debug_Print(g:DBG_Information, 'Loading wxpython types')
 				execute 'so ' . g:wxPyTypesFile
 			endif
 			if filereadable(g:wxPyTagsFile)
 				execute 'setlocal tags+=' . g:wxPyTagsFile
+			endif
+		endif
+	elseif index(['java',], expand(file . ':e')) != -1
+		" This is a java source file
+		call s:Debug_Print(g:DBG_Information, 'Java Source file - checking "' . g:jdkTypesFile . '"')
+		if filereadable(g:jdkTypesFile)
+			call s:Debug_Print(g:DBG_Information, 'Loading JDK types')
+			execute 'so ' . g:jdkTypesFile
+		endif
+		call cursor(1,1)
+		if search('^\s*import\s\+android\.', 'nc', 30)
+			call s:Debug_Print(g:DBG_Information, 'Android Source file - checking "' . g:androidTypesFile . '"')
+			if filereadable(g:androidTypesFile)
+				call s:Debug_Print(g:DBG_Information, 'Loading Android types')
+				execute 'so ' . g:androidTypesFile
 			endif
 		endif
 	endif
@@ -191,7 +226,7 @@ func! s:FindExePath(file)
 		" If file is not in the path, look for it in vimfiles/
 		if !filereadable(file_exe)
 			call s:Debug_Print(g:DBG_Status, "Looking for " . a:file . " in " . &rtp)
-			let file_exe_list = split(globpath(&rtp, a:file . '.exe'))
+			let file_exe_list = split(globpath(&rtp, a:file . '.exe'), '\n')
 			if len(file_exe_list) > 0
 				call s:Debug_Print(g:DBG_Status, "Success.")
 				let file_exe = file_exe_list[0]
@@ -217,7 +252,7 @@ func! s:FindExePath(file)
 
 		call s:Debug_Print(g:DBG_Status, "Looking for " . short_file . " in " . path)
 
-		let file_exe_list = split(globpath(path, short_file))
+		let file_exe_list = split(globpath(path, short_file), '\n')
 
 		if len(file_exe_list) > 0
 			call s:Debug_Print(g:DBG_Status, "Success.")
@@ -241,6 +276,16 @@ func! s:FindExePath(file)
 	return file_path
 endfunc
 
+func! s:GetOption(name, default)
+	let opt = a:default
+	if exists('g:' . a:name)
+		exe 'let opt = g:' . a:name
+	endif
+	if exists('b:' . a:name)
+		exe 'let opt = b:' . a:name
+	endif
+	return opt
+endfunction
 
 func! UpdateTypesFile(recurse, skiptags)
 	let s:vrc = globpath(&rtp, "mktypes.py")
@@ -276,33 +321,29 @@ func! UpdateTypesFile(recurse, skiptags)
 		endfor
 	endif
 
-	if exists('b:TypesFileIncludeSynMatches')
-		if b:TypesFileIncludeSynMatches == 1
-			let syscmd .= ' --include-invalid-keywords-as-matches'
-		endif
+	let TypesFileIncludeSynMatches = s:GetOption('TypesFileIncludeSynMatches', 1)
+	if TypesFileIncludeSynMatches == 1
+		let syscmd .= ' --include-invalid-keywords-as-matches'
 	endif
 
-	if exists('b:TypesFileIncludeLocals')
-		if b:TypesFileIncludeLocals == 1
-			let syscmd .= ' --include-locals'
-		endif
+	let TypesFileIncludeLocals = s:GetOption('TypesFileIncludeLocals', 1)
+	if TypesFileIncludeLocals == 1
+		let syscmd .= ' --include-locals'
 	endif
 
-	if exists('b:TypesFileDoNotGenerateTags')
-		if b:TypesFileDoNotGenerateTags == 1
-			let syscmd .= ' --use-existing-tagfile'
-		endif
+	let TypesFileDoNotGenerateTags = s:GetOption('TypesFileDoNotGenerateTags', 0)
+	if TypesFileDoNotGenerateTags == 1
+		let syscmd .= ' --use-existing-tagfile'
 	elseif a:skiptags == 1
 		let syscmd .= ' --use-existing-tagfile'
 	endif
 
-	if exists('b:CheckForCScopeFiles')
-		if b:CheckForCScopeFiles == 1
-			let syscmd .= ' --build-cscopedb-if-cscope-file-exists'
-			let syscmd .= ' --cscope-dir=' 
-			let cscope_path = s:FindExePath('extra_source/cscope_win/cscope')
-			let syscmd .= cscope_path
-		endif
+	let CheckForCScopeFiles = s:GetOption('CheckForCScopeFiles', 0)
+	if CheckForCScopeFiles == 1
+		let syscmd .= ' --build-cscopedb-if-cscope-file-exists'
+		let syscmd .= ' --cscope-dir=' 
+		let cscope_path = s:FindExePath('extra_source/cscope_win/cscope')
+		let syscmd .= cscope_path
 	endif
 
 	let sysoutput = system(sysroot . syscmd) 

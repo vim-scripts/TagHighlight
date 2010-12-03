@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
-## Date::   29th March 2010      ##
-## RevTag:: r398                 ##
+## Date::   2nd December 2010    ##
+## RevTag:: r431                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r398 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r431 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -71,6 +71,10 @@ def GetCommandArgs(options):
 		Configuration['CTAGS_OPTIONS'] = '--recurse'
 		if options.include_locals:
 			Configuration['CTAGS_OPTIONS'] += ' --c-kinds=+l'
+			Configuration['CTAGS_OPTIONS'] += ' --java-kinds=+l'
+			Configuration['CTAGS_OPTIONS'] += ' --c++-kinds=+l'
+			Configuration['CTAGS_OPTIONS'] += ' --c#-kinds=+l'
+			Configuration['CTAGS_OPTIONS'] += ' --java-kinds=+l'
 		Configuration['CTAGS_FILES'] = ['.']
 	else:
 		if options.include_locals:
@@ -246,7 +250,7 @@ def CreateTypesFile(config, Parameters, options):
 	p = open('tags', "r")
 
 	if options.include_locals:
-		LocalTagType = ',ctags_l'
+		LocalTagType = ',CTagsLocalVariable'
 	else:
 		LocalTagType = ''
 
@@ -404,7 +408,6 @@ def CreateTypesFile(config, Parameters, options):
 			if AddList != 'add=':
 				AddList += ','
 			AddList += thisType;
-	AddList += ' '
 
 	if Parameters['suffix'] in ['c',]:
 		vimtypes_entries.append('')
@@ -415,6 +418,10 @@ def CreateTypesFile(config, Parameters, options):
 		vimtypes_entries.append('\tsyn cluster cParenGroup ' + AddList + LocalTagType)
 		vimtypes_entries.append('\tsyn cluster cCppParenGroup ' + AddList + LocalTagType)
 		vimtypes_entries.append('endif')
+
+	if Parameters['suffix'] in ['java',]:
+		vimtypes_entries.append('')
+		vimtypes_entries.append('syn cluster javaTop ' + AddList + LocalTagType)
 
 	try:
 		fh = open(outfile, 'wb')
@@ -847,3 +854,5 @@ def GetKindList():
 	
 if __name__ == "__main__":
 	main()
+
+# vim: noet ts=4 sw=4

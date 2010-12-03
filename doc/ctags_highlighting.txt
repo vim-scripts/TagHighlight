@@ -3,7 +3,7 @@
 Author:	    A. S. Budden <abuddenNOSPAM@NOSPAMgmail.com>
 	    Remove NOSPAM.
 
-## RevTag:: r398                                                           ##
+## RevTag:: r431                                                           ##
 
 Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 	    The VIM LICENCE applies to ctags_highlighting.vim, mktypes.py and
@@ -145,52 +145,52 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 2.4 Configuration                        *ctags_highlighting-config*      {{{2
 
     There are a number of options that allow customisation of the operation of
-    the highlighter.  Currently, they are all implemented as buffer-local
-    variables.  This is largely due to the fact that I use the project plugin
-    (|project.txt|).  This includes the ability to customise buffer settings
-    automatically using the "in=" part of the project configuration (see
-    |project-syntax| if you have the plugin installed).  Anyway, I hope to
-    change this soon to support global variables as well.
-    
+    the highlighter.  These can be specified as buffer-local variables (using
+    a b: prefix) or global variables (using a g: prefix).  This is largely due
+    to the fact that I use the project plugin (|project.txt|).  This includes
+    the ability to customise buffer settings automatically using the "in="
+    part of the project configuration (see |project-syntax| if you have the
+    plugin installed).    
+
         b:TypesFileRecurse               *b:TypesFileRecurse*
     	
-	    If this (buffer-local) variable is set to 1, |UpdateTypesFile|
-	    recurses into subdirectories even if the ! is not appended.
+	    If this variable is set to 1, |UpdateTypesFile| recurses into
+	    subdirectories even if the ! is not appended.
 >
 		let b:TypesFileRecurse = 1
 <
         b:TypesFileDoNotGenerateTags     *b:TypesFileDoNotGenerateTags*
     
-	   If this (buffer-local) variable is set to 1, running
-	   |UpdateTypesFile| is equivalent to running |UpdateTypesFileOnly|.
+	   If this variable is set to 1, running |UpdateTypesFile| is
+	   equivalent to running |UpdateTypesFileOnly|.
 >
 		let b:TypesFileDoNotGenerateTags = 1
 <
         b:TypesFileIncludeLocals         *b:TypesFileIncludeLocals*
     	
-	   If this (buffer-local) variable is set to 1, local variables are
-	   included in the syntax highlighting.  Note however that no scope is
-	   applied to these variables, so they will be highlighted even if
-	   they are used in the wrong function.
+	   If this variable is set to 1, local variables are included in the
+	   syntax highlighting.  Note however that no scope is applied to
+	   these variables, so they will be highlighted even if they are used
+	   in the wrong function.
 >
 		let b:TypesFileIncludeLocals = 1
 <
         b:TypesFileIncludeSynMatches     *b:TypesFileIncludeSynMatches*
     	
-	   If this (buffer-local) variable is set to 1, more obscure matches
-	   are included in the syntax highlighter.  The standard highlighter
-	   only highlights tags that are made up of keyword characters (see
-	   |'iskeyword'|).  If this option is enabled, other tags are
-	   highlighted using |:syn-match|.  Note however that this can
-	   seriously slow your Vim down if there are a lot of matches
-	   (|:syn-match| is much slower than |:syn-keyword|).
+	   If this variable is set to 1, more obscure matches are included in
+	   the syntax highlighter.  The standard highlighter only highlights
+	   tags that are made up of keyword characters (see |'iskeyword'|).
+	   If this option is enabled, other tags are highlighted using
+	   |:syn-match|.  Note however that this can seriously slow your Vim
+	   down if there are a lot of matches (|:syn-match| is much slower
+	   than |:syn-keyword|).
     
         b:TypesFileLanguages             *b:TypesFileLanguages*
     
-	   This (buffer-local) variable can be used to limit the number of
-	   languages searched for by the generation script.  This can speed up
-	   tag generation somewhat.  For example, if you are working on C/C++
-	   source code, use:
+	   This variable can be used to limit the number of languages searched
+	   for by the generation script.  This can speed up tag generation
+	   somewhat.  For example, if you are working on C/C++ source code,
+	   use:
 >
 		let b:TypesFileLanguages = ['c']
 <
@@ -207,9 +207,9 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 <
     Additional components are available on the |ctags_highlighting-website|.
     These include a Windows binary version of the python component and a set
-    of pregenerated types files for wxWidgets, wxPython and Qt 4.  The Windows
-    binary should be unzipped into your |vimfiles| directory.  The
-    pregenerated types files are distributed as another |vimball|.
+    of pregenerated types files for wxWidgets, wxPython, Java, Android and Qt
+    4.  The Windows binary should be unzipped into your |vimfiles| directory.
+    The pregenerated types files are distributed as another |vimball|.
 
 ==============================================================================
 3. CTAGS Highlighting Customisation      *ctags_highlighting-custom*      {{{1
@@ -292,18 +292,24 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
     
     - Move most of the functionality into an autoload script.
     
-    - Abstract the language specific parts so that adding a new language
-      doesn't involve too many changes.
-    
-    - Simplify the options, in particular, allow global variables as well as
-      buffer-local variables.
-    
-    - Tidy up the types files for wxWidgets, Qt and wxPython.
+    - Tidy up the types files for wxWidgets, Qt, JDK, Android and wxPython.
 
     - Make it work when Vim is installed in a path with spaces.
 
 ==============================================================================
 5. CTAGS Highlighting History            *ctags_highlighting-history*     {{{1
+
+r431 : 2nd December 2010   : Add support for local variables in non-C
+                             languages.
+
+r429 : 2nd December 2010   : Improvements to cope with spaces in paths.
+
+r425 : 16th November 2010  : Added support for Java and Android SDKs.
+
+r410 : 9th September 2010  : Improved option configuration implementation.
+
+r409 : 9th September 2010  : Allow cscope configuration options to be local
+                             rather than buffer specific.
 
 r398 : 29th March 2010     : Added support for python import in the listing.
 
