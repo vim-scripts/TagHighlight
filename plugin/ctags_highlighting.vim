@@ -1,14 +1,14 @@
 " ctags_highlighting
 "   Author:  A. S. Budden
-"## Date::   2nd December 2010       ##
-"## RevTag:: r429                    ##
+"## Date::   11th January 2011       ##
+"## RevTag:: r435                    ##
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
 endif
 let g:loaded_ctags_highlighting = 1
 
-let s:CTagsHighlighterVersion = "## RevTag:: r429 ##"
+let s:CTagsHighlighterVersion = "## RevTag:: r435 ##"
 let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '[#]\{2} RevTag[:]\{2} \(r\d\+\) *[#]\{2}', '\1', '')
 
 if !exists('g:VIMFILESDIR')
@@ -321,7 +321,7 @@ func! UpdateTypesFile(recurse, skiptags)
 		endfor
 	endif
 
-	let TypesFileIncludeSynMatches = s:GetOption('TypesFileIncludeSynMatches', 1)
+	let TypesFileIncludeSynMatches = s:GetOption('TypesFileIncludeSynMatches', 0)
 	if TypesFileIncludeSynMatches == 1
 		let syscmd .= ' --include-invalid-keywords-as-matches'
 	endif

@@ -3,7 +3,7 @@
 Author:	    A. S. Budden <abuddenNOSPAM@NOSPAMgmail.com>
 	    Remove NOSPAM.
 
-## RevTag:: r431                                                           ##
+## RevTag:: r435                                                           ##
 
 Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 	    The VIM LICENCE applies to ctags_highlighting.vim, mktypes.py and
@@ -298,6 +298,12 @@ Copyright:  (c) 2009 by A. S. Budden            *ctags_highlighting-copyright*
 
 ==============================================================================
 5. CTAGS Highlighting History            *ctags_highlighting-history*     {{{1
+
+r435 : 11th January 2011   : Changed default to not include syntax matches
+                             unless either g:TypesFileIncludeSynMatches or
+                             b:TypesFileIncludeSynMatches is set to 1 (this
+                             makes the highlighting much faster for large
+                             projects).
 
 r431 : 2nd December 2010   : Add support for local variables in non-C
                              languages.
