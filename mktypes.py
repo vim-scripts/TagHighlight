@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
-## Date::   2nd December 2010    ##
-## RevTag:: r431                 ##
+## Date::   16th February 2011   ##
+## RevTag:: r440                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r431 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r440 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -146,7 +146,7 @@ def GetLanguageParameters(lang):
 	if lang == 'c':
 		params['suffix'] = 'c'
 		params['name'] = 'c'
-		params['extensions'] = r'[ch]\w*'
+		params['extensions'] = r'(c|cc|cpp|h|hpp|cxx|hxx)'
 	elif lang == 'python':
 		params['suffix'] = 'py'
 		params['name'] = 'python'

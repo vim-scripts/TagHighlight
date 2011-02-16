@@ -1,7 +1,7 @@
 " ctags_highlighting
 "   Author:  A. S. Budden
-"## Date::   11th January 2011       ##
-"## RevTag:: r435                    ##
+"## Date::   16th February 2011      ##
+"## RevTag:: r440                    ##
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
@@ -73,14 +73,14 @@ function! ReadTypesAutoDetect()
 	let extension = expand('%:e')
 	let extensionLookup = 
 				\ {
-				\     '[ch]\(pp\)\?' : "c",
-				\     'p[lm]'        : "pl",
-				\     'java'         : "java",
-				\     'pyw\?'        : "py",
-				\     'rb'           : "ruby",
-				\     'cs'           : "cs",
-				\     'php'          : "php",
-				\     'vhdl\?'       : "vhdl",
+				\     '\(c\|cc\|cpp\|h\|hpp\|cxx\|hxx\)' : "c",
+				\     'p[lm]'                            : "pl",
+				\     'java'                             : "java",
+				\     'pyw\?'                            : "py",
+				\     'rb'                               : "ruby",
+				\     'cs'                               : "cs",
+				\     'php'                              : "php",
+				\     'vhdl\?'                           : "vhdl",
 				\ }
 
 	call s:Debug_Print(g:DBG_Information, "Detecting types for extension '" . extension . "'")
@@ -138,7 +138,7 @@ function! ReadTypes(suffix)
 	endif
 
 	" Open default source files
-	if index(['cpp', 'h', 'hpp'], expand(file . ':e')) != -1
+	if index(['cc', 'cpp', 'h', 'hpp'], expand(file . ':e')) != -1
 		call s:Debug_Print(g:DBG_Information, 'C++ source file, checking for wx/Qt')
 		" This is a C++ source file
 		call cursor(1,1)
@@ -340,6 +340,14 @@ func! UpdateTypesFile(recurse, skiptags)
 
 	let CheckForCScopeFiles = s:GetOption('CheckForCScopeFiles', 0)
 	if CheckForCScopeFiles == 1
+		if cscope_connection()
+			" Kill all existing cscope connections so that the database can be
+			" rebuilt.  Because we run cscope in the background (from python)
+			" we can't just re-add the cscope database as it might not have
+			" finished yet.  Otherwise, we'd parse the output of 'cs show'
+			" and re-add the database at the end of the function.
+			cs kill -1
+		endif
 		let syscmd .= ' --build-cscopedb-if-cscope-file-exists'
 		let syscmd .= ' --cscope-dir=' 
 		let cscope_path = s:FindExePath('extra_source/cscope_win/cscope')
