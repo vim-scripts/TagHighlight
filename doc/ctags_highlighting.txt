@@ -299,6 +299,9 @@ Copyright:  (c) 2009-2011 by A. S. Budden       *ctags_highlighting-copyright*
 ==============================================================================
 5. CTAGS Highlighting History            *ctags_highlighting-history*     {{{1
 
+r442 : 16th February 2011  : Improved prioritisation of object-oriented
+                             language types (thanks to Aleksey Baibarin).
+
 r440 : 16th February 2011  : More explicit choice of C/C++ file extensions to
 			     avoid conflicts with C# (thanks to Aleksey
 			     Baibarin).

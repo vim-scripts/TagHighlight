@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
 ## Date::   16th February 2011   ##
-## RevTag:: r440                 ##
+## RevTag:: r442                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r440 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r442 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -325,10 +325,12 @@ def CreateTypesFile(config, Parameters, options):
 
 	# Specified highest priority first
 	Priority = [
-			'CTagsClass', 'CTagsDefinedName', 'CTagsType',
-			'CTagsFunction', 'CTagsEnumerationValue',
-			'CTagsEnumeratorName', 'CTagsConstant', 'CTagsGlobalVariable',
-			'CTagsUnion', 'CTagsMember', 'CTagsStructure',
+			'CTagsNamespace', 'CTagsClass', 'CTagsDefinedName',
+			'CTagsType', 'CTagsMethod', 'CTagsFunction',
+			'CTagsEnumerationValue', 'CTagsEnumeratorName',
+			'CTagsConstant', 'CTagsGlobalVariable',
+			'CTagsUnion', 'CTagsProperty', 'CTagsMember',
+			'CTagsStructure',
 			]
 
 	# Reverse the list as highest priority should be last!
