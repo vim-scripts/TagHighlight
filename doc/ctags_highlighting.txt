@@ -3,7 +3,7 @@
 Author:	    A. S. Budden <abuddenNOSPAM@NOSPAMgmail.com>
 	    Remove NOSPAM.
 
-## RevTag:: r440                                                           ##
+## RevTag:: r443                                                           ##
 
 Copyright:  (c) 2009-2011 by A. S. Budden       *ctags_highlighting-copyright*
 	    The VIM LICENCE applies to ctags_highlighting.vim, mktypes.py and
@@ -198,6 +198,15 @@ Copyright:  (c) 2009-2011 by A. S. Budden       *ctags_highlighting-copyright*
 >
 		let b:TypesFileLanguages = ['ruby', 'python']
 <
+	b:TypesCTagsFile                 *b:TypesCTagsFile*
+
+	   Change the name of the tags file from the default, "tags". Affects
+	   both file reading and creation.
+
+	b:TypesPrefix                    *b:TypesPrefix*
+
+	   Change the prefix for the vim types files from the default, "types".
+	   Affects both file reading and creation.
 
 2.5 Installation                         *ctags_highlighting-install*     {{{2
 
@@ -298,6 +307,9 @@ Copyright:  (c) 2009-2011 by A. S. Budden       *ctags_highlighting-copyright*
 
 ==============================================================================
 5. CTAGS Highlighting History            *ctags_highlighting-history*     {{{1
+
+r443 : 19th February 2011  : Allow customisation of the filenames used
+                             for tags and types files (thanks to Sung Pae).
 
 r442 : 16th February 2011  : Improved prioritisation of object-oriented
                              language types (thanks to Aleksey Baibarin).

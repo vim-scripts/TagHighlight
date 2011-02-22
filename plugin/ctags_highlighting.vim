@@ -1,14 +1,14 @@
 " ctags_highlighting
 "   Author:  A. S. Budden
-"## Date::   16th February 2011      ##
-"## RevTag:: r440                    ##
+"## Date::   19th February 2011      ##
+"## RevTag:: r443                    ##
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
 endif
 let g:loaded_ctags_highlighting = 1
 
-let s:CTagsHighlighterVersion = "## RevTag:: r435 ##"
+let s:CTagsHighlighterVersion = "## RevTag:: r443 ##"
 let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '[#]\{2} RevTag[:]\{2} \(r\d\+\) *[#]\{2}', '\1', '')
 
 if !exists('g:VIMFILESDIR')
@@ -25,6 +25,17 @@ let g:DBG_Information = 5
 if !exists('g:CTagsHighlighterDebug')
 	let g:CTagsHighlighterDebug = g:DBG_None
 endif
+
+func! s:GetOption(name, default)
+	let opt = a:default
+	if exists('g:' . a:name)
+		exe 'let opt = g:' . a:name
+	endif
+	if exists('b:' . a:name)
+		exe 'let opt = b:' . a:name
+	endif
+	return opt
+endfunction
 
 " These should only be included if editing a wx or qt file
 " They should also be updated to include all functions etc, not just
@@ -118,19 +129,19 @@ function! ReadTypes(suffix)
 			return
 		endif
 	endif
-	let fname = expand(file . ':p:h') . '/types_' . a:suffix . '.vim'
+	let fname = expand(file . ':p:h') . '/' . s:GetOption('TypesPrefix', 'types') . '_' . a:suffix . '.vim'
 	call s:Debug_Print(g:DBG_Information, "Checking for file " . fname)
 	if filereadable(fname)
 		call s:Debug_Print(g:DBG_Information, "Found")
 		exe 'so ' . fname
 	endif
-	let fname = expand(file . ':p:h:h') . '/types_' . a:suffix . '.vim'
+	let fname = expand(file . ':p:h:h') . '/' . s:GetOption('TypesPrefix', 'types') . '_' . a:suffix . '.vim'
 	call s:Debug_Print(g:DBG_Information, "Checking for file " . fname)
 	if filereadable(fname)
 		call s:Debug_Print(g:DBG_Information, "Found")
 		exe 'so ' . fname
 	endif
-	let fname = 'types_' . a:suffix . '.vim'
+	let fname = s:GetOption('TypesPrefix', 'types') . '_' . a:suffix . '.vim'
 	call s:Debug_Print(g:DBG_Information, "Checking for file " . fname)
 	if filereadable(fname)
 		call s:Debug_Print(g:DBG_Information, "Found")
@@ -276,17 +287,6 @@ func! s:FindExePath(file)
 	return file_path
 endfunc
 
-func! s:GetOption(name, default)
-	let opt = a:default
-	if exists('g:' . a:name)
-		exe 'let opt = g:' . a:name
-	endif
-	if exists('b:' . a:name)
-		exe 'let opt = b:' . a:name
-	endif
-	return opt
-endfunction
-
 func! UpdateTypesFile(recurse, skiptags)
 	let s:vrc = globpath(&rtp, "mktypes.py")
 
@@ -337,6 +337,9 @@ func! UpdateTypesFile(recurse, skiptags)
 	elseif a:skiptags == 1
 		let syscmd .= ' --use-existing-tagfile'
 	endif
+
+	let syscmd .= ' --ctags-file ' . s:GetOption('TypesCTagsFile', 'tags')
+	let syscmd .= ' --types-prefix ' . s:GetOption('TypesPrefix', 'types')
 
 	let CheckForCScopeFiles = s:GetOption('CheckForCScopeFiles', 0)
 	if CheckForCScopeFiles == 1

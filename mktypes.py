@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
-## Date::   16th February 2011   ##
-## RevTag:: r442                 ##
+## Date::   19th February 2011   ##
+## RevTag:: r443                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r442 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r443 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -67,8 +67,11 @@ def GetCommandArgs(options):
 	Configuration = {}
 	Configuration['CTAGS_OPTIONS'] = ''
 
+	if options.ctags_file:
+		Configuration['CTAGS_OPTIONS'] += ' -f %s ' % options.ctags_file
+
 	if options.recurse:
-		Configuration['CTAGS_OPTIONS'] = '--recurse'
+		Configuration['CTAGS_OPTIONS'] += '--recurse'
 		if options.include_locals:
 			Configuration['CTAGS_OPTIONS'] += ' --c-kinds=+l'
 			Configuration['CTAGS_OPTIONS'] += ' --java-kinds=+l'
@@ -127,14 +130,14 @@ def CreateTagsFile(config, languages, options):
 	#os.system(ctags_cmd)
 	subprocess.call(ctags_cmd, shell = (os.name != 'nt'))
 
-	tagFile = open('tags', 'r')
+	tagFile = open(options.ctags_file, 'r')
 	tagLines = [line.strip() for line in tagFile]
 	tagFile.close()
 
 	# Also sort the file a bit better (tag, then kind, then filename)
 	tagLines.sort(key=ctags_key)
 
-	tagFile = open('tags', 'w')
+	tagFile = open(options.ctags_file, 'w')
 	for line in tagLines:
 		tagFile.write(line + "\n")
 	tagFile.close()
@@ -239,15 +242,15 @@ def IsValidKeyword(keyword, iskeyword):
 		if not char in iskeyword:
 			return False
 	return True
-	
+
 #@print_timing
 def CreateTypesFile(config, Parameters, options):
-	outfile = 'types_%s.vim' % Parameters['suffix']
+	outfile = '%s_%s.vim' % (options.types_prefix, Parameters['suffix'])
 	print "Generating " + outfile
 	lineMatcher = re.compile(r'^.*?\t[^\t]*\.(?P<extension>' + Parameters['extensions'] + ')\t')
 
 	#p = os.popen(ctags_cmd, "r")
-	p = open('tags', "r")
+	p = open(options.ctags_file, "r")
 
 	if options.include_locals:
 		LocalTagType = ',CTagsLocalVariable'
@@ -449,6 +452,16 @@ def main():
 			default=False,
 			dest="recurse",
 			help="Recurse into subdirectories")
+	parser.add_option('--ctags-file',
+			action='store',
+			default='tags',
+			dest='ctags_file',
+			help='CTAGS output filename')
+	parser.add_option('--types-prefix',
+			action='store',
+			default='types',
+			dest='types_prefix',
+			help='Vim Types file prefix')
 	parser.add_option('--ctags-dir',
 			action='store',
 			default=None,
@@ -530,7 +543,7 @@ def main():
 	else:
 		language_list = [i for i in full_language_list if i in options.languages]
 
-	if options.use_existing_tagfile and not os.path.exists('tags'):
+	if options.use_existing_tagfile and not os.path.exists(options.ctags_file):
 		options.use_existing_tagfile = False
 
 	if not options.use_existing_tagfile:
