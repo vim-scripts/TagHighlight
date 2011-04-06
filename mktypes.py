@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
 ## Date::   6th April 2011       ##
-## RevTag:: r452                 ##
+## RevTag:: r454                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r452 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r454 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -101,7 +101,7 @@ def CreateCScopeFile(options):
 
 	if options.build_cscopedb:
 		run_cscope = True
-	
+
 	if os.path.exists('cscope.files'):
 		if options.build_cscopedb_if_file_exists:
 			run_cscope = True
@@ -115,7 +115,7 @@ def CreateCScopeFile(options):
 #@print_timing
 def CreateTagsFile(config, languages, options):
 	print "Generating Tags"
-	
+
 	ctags_languages = languages[:]
 	if 'c' in ctags_languages:
 		ctags_languages.append('c++')

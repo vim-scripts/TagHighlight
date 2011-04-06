@@ -1,14 +1,14 @@
 " ctags_highlighting
 "   Author:  A. S. Budden
 "## Date::   6th April 2011          ##
-"## RevTag:: r452                    ##
+"## RevTag:: r454                    ##
 
 if &cp || exists("g:loaded_ctags_highlighting")
 	finish
 endif
 let g:loaded_ctags_highlighting = 1
 
-let s:CTagsHighlighterVersion = "## RevTag:: r452 ##"
+let s:CTagsHighlighterVersion = "## RevTag:: r454 ##"
 let s:CTagsHighlighterVersion = substitute(s:CTagsHighlighterVersion, '[#]\{2} RevTag[:]\{2} \(r\d\+\) *[#]\{2}', '\1', '')
 
 if !exists('g:VIMFILESDIR')
