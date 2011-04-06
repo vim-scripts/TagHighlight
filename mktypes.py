@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
-## Date::   19th February 2011   ##
-## RevTag:: r443                 ##
+## Date::   6th April 2011       ##
+## RevTag:: r452                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r443 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r452 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -269,17 +269,20 @@ def CreateTypesFile(config, Parameters, options):
 
 		m = field_processor.match(line.strip())
 		if m is not None:
-			vimmed_line = 'syntax keyword ' + KindList['ctags_' + m.group('kind')] + ' ' + m.group('keyword')
+			try:
+				vimmed_line = 'syntax keyword ' + KindList['ctags_' + m.group('kind')] + ' ' + m.group('keyword')
 
-			if options.parse_constants and (Parameters['suffix'] == 'c') and (m.group('kind') == 'v'):
-				if field_const.search(m.group('search')) is not None:
-					vimmed_line = vimmed_line.replace('CTagsGlobalVariable', 'CTagsConstant')
+				if options.parse_constants and (Parameters['suffix'] == 'c') and (m.group('kind') == 'v'):
+					if field_const.search(m.group('search')) is not None:
+						vimmed_line = vimmed_line.replace('CTagsGlobalVariable', 'CTagsConstant')
 
-			if Parameters['suffix'] != 'c' or m.group('kind') != 'p':
-				ctags_entries.append(vimmed_line)
-	
+				if Parameters['suffix'] != 'c' or m.group('kind') != 'p':
+					ctags_entries.append(vimmed_line)
+			except KeyError:
+				ctags_entries.append('''" Skipping unrecognised kind '%c' ''' % (m.group('kind'),))
+
 	p.close()
-	
+
 	# Essentially a uniq() function
 	ctags_entries = dict.fromkeys(ctags_entries).keys()
 	# Sort the list
@@ -288,7 +291,7 @@ def CreateTypesFile(config, Parameters, options):
 	if len(ctags_entries) == 0:
 		print "No tags found"
 		return
-	
+
 	keywordDict = {}
 	for line in ctags_entries:
 		m = field_keyword.match(line)
@@ -384,7 +387,7 @@ def CreateTypesFile(config, Parameters, options):
 					continue
 
 
-			if keyword.lower() in vim_synkeyword_arguments:
+			if keyword.lower() in vim_synkeyword_arguments and not options.skip_matches:
 				matchEntries.append('syntax match ' + thisType + ' /' + keyword + '/')
 				continue
 
@@ -395,7 +398,7 @@ def CreateTypesFile(config, Parameters, options):
 			keycommand = keycommand + " " + keyword
 		if keycommand != keystarter:
 			vimtypes_entries.append(keycommand)
-	
+
 	# Essentially a uniq() function
 	matchEntries = dict.fromkeys(matchEntries).keys()
 	# Sort the list
@@ -405,7 +408,6 @@ def CreateTypesFile(config, Parameters, options):
 	for thisMatch in matchEntries:
 		vimtypes_entries.append(thisMatch)
 
-	LanguageKinds = GetKindList()
 	AddList = 'add='
 
 	for thisType in allTypes:
@@ -606,6 +608,7 @@ def GetKindList():
 		'ctags_u': 'CTagsUnion',
 		'ctags_v': 'CTagsGlobalVariable',
 		'ctags_x': 'CTagsExtern',
+		'ctags_F': 'CTagsFile',
 	}
 	LanguageKinds['c++'] = \
 	{
@@ -624,6 +627,7 @@ def GetKindList():
 		'ctags_u': 'CTagsUnion',
 		'ctags_v': 'CTagsGlobalVariable',
 		'ctags_x': 'CTagsExtern',
+		'ctags_F': 'CTagsFile',
 	}
 	LanguageKinds['c#'] = \
 	{
@@ -766,6 +770,7 @@ def GetKindList():
 	LanguageKinds['sh'] = \
 	{
 		'ctags_f': 'CTagsFunction',
+		'ctags_F': 'CTagsFile',
 	}
 	LanguageKinds['slang'] = \
 	{
@@ -866,7 +871,6 @@ def GetKindList():
 	}
 	return LanguageKinds
 
-	
 if __name__ == "__main__":
 	main()
 
