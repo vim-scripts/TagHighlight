@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
 ## Date::   6th April 2011       ##
-## RevTag:: r454                 ##
+## RevTag:: r456                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r454 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r456 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
