@@ -3,7 +3,7 @@
 Author:	    A. S. Budden <abuddenNOSPAM@NOSPAMgmail.com>
 	    Remove NOSPAM.
 
-## RevTag:: r456                                                           ##
+## RevTag:: r458                                                           ##
 
 Copyright:  (c) 2009-2011 by A. S. Budden       *ctags_highlighting-copyright*
 	    The VIM LICENCE applies to ctags_highlighting.vim, mktypes.py and
@@ -184,6 +184,19 @@ Copyright:  (c) 2009-2011 by A. S. Budden       *ctags_highlighting-copyright*
 	   |:syn-match|.  Note however that this can seriously slow your Vim
 	   down if there are a lot of matches (|:syn-match| is much slower
 	   than |:syn-keyword|).
+>
+               let b:TypesFileIncludeSynMatches = 1
+<
+
+	b:TypesFileSkipVimKeywords       *b:TypesFileSkipVimKeywords*
+
+	   If this variable is set to 1, the regular expression matchers used
+	   to highlight any keywords that match the keywords used in Vim's
+	   syntax definition language are disabled and these keywords won't
+	   be highlighted.
+>
+               let b:TypesFileSkipVimKeywords = 1
+<
     
         b:TypesFileLanguages             *b:TypesFileLanguages*
     
@@ -302,11 +315,16 @@ Copyright:  (c) 2009-2011 by A. S. Budden       *ctags_highlighting-copyright*
     - Move most of the functionality into an autoload script.
     
     - Tidy up the types files for wxWidgets, Qt, JDK, Android and wxPython.
+    
+    - More control over location of tags and types file.
 
-    - Make it work when Vim is installed in a path with spaces.
+    - Make it work better when Vim is installed in a path with spaces.
 
 ==============================================================================
 5. CTAGS Highlighting History            *ctags_highlighting-history*     {{{1
+
+r458 : 7th March 2011      : Inclusion of vim keywords (display, contained
+                             etc) controlled by separate option.
 
 r456 : 6th March 2011      : Fixed accidental file-type change.
 

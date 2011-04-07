@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Author:  A. S. Budden
-## Date::   6th April 2011       ##
-## RevTag:: r456                 ##
+## Date::   7th April 2011       ##
+## RevTag:: r458                 ##
 
 import os
 import sys
@@ -11,7 +11,7 @@ import fnmatch
 import glob
 import subprocess
 
-revision = "## RevTag:: r456 ##".strip('# ').replace('RevTag::', 'revision')
+revision = "## RevTag:: r458 ##".strip('# ').replace('RevTag::', 'revision')
 
 field_processor = re.compile(
 r'''
@@ -387,8 +387,9 @@ def CreateTypesFile(config, Parameters, options):
 					continue
 
 
-			if keyword.lower() in vim_synkeyword_arguments and not options.skip_matches:
-				matchEntries.append('syntax match ' + thisType + ' /' + keyword + '/')
+			if keyword.lower() in vim_synkeyword_arguments:
+				if not options.skip_vimkeywords:
+					matchEntries.append('syntax match ' + thisType + ' /' + keyword + '/')
 				continue
 
 			temp = keycommand + " " + keyword
@@ -485,6 +486,11 @@ def main():
 			default=True,
 			dest='skip_matches',
 			help='Include invalid keywords as regular expression matches (may slow it loading)')
+	parser.add_option('--exclude-vim-keywords',
+			action='store_true',
+			default=False,
+			dest='skip_vimkeywords',
+			help="Don't include Vim keywords (they have to be matched with regular expression matches, which is slower)")
 	parser.add_option('--do-not-analyse-constants',
 			action='store_false',
 			default=True,
