@@ -1,0 +1,7 @@
+FriendlyName:php
+CTagsName:php
+PythonExtensionMatcher:php
+VimExtensionMatcher:php
+Suffix:php
+
+# vim: ff=unix:noet

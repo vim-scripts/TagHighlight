@@ -1,0 +1,7 @@
+FriendlyName:vhdl
+CTagsName:vhdl
+PythonExtensionMatcher:vhdl?
+VimExtensionMatcher:vhdl\?
+Suffix:vhdl
+
+# vim: ff=unix:noet

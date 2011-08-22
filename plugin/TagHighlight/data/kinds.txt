@@ -1,0 +1,243 @@
+asm:
+	d:CTagsDefinedName
+	l:CTagsLabel
+	m:CTagsMacro
+	t:CTagsType
+asp:
+	c:CTagsConstant
+	f:CTagsFunction
+	s:CTagsSubroutine
+	v:CTagsVariable
+awk:
+	f:CTagsFunction
+basic:
+	c:CTagsConstant
+	f:CTagsFunction
+	l:CTagsLabel
+	t:CTagsType
+	v:CTagsVariable
+	g:CTagsEnumeration
+beta:
+	f:CTagsFragment
+	p:CTagsPattern
+	s:CTagsSlot
+	v:CTagsVirtualPattern
+c:
+	c:CTagsClass
+	d:CTagsDefinedName
+	e:CTagsEnumerationValue
+	f:CTagsFunction
+	g:CTagsEnumeratorName
+	k:CTagsConstant
+	l:CTagsLocalVariable
+	m:CTagsMember
+	n:CTagsNamespace
+	p:CTagsFunction
+	s:CTagsStructure
+	t:CTagsType
+	u:CTagsUnion
+	v:CTagsGlobalVariable
+	x:CTagsExtern
+	F:CTagsFile
+c++:
+	c:CTagsClass
+	d:CTagsDefinedName
+	e:CTagsEnumerationValue
+	f:CTagsFunction
+	g:CTagsEnumerationName
+	k:CTagsConstant
+	l:CTagsLocalVariable
+	m:CTagsMember
+	n:CTagsNamespace
+	p:CTagsFunction
+	s:CTagsStructure
+	t:CTagsType
+	u:CTagsUnion
+	v:CTagsGlobalVariable
+	x:CTagsExtern
+	F:CTagsFile
+c#:
+	c:CTagsClass
+	d:CTagsDefinedName
+	e:CTagsEnumerationValue
+	E:CTagsEvent
+	f:CTagsField
+	g:CTagsEnumerationName
+	i:CTagsInterface
+	l:CTagsLocalVariable
+	m:CTagsMethod
+	n:CTagsNamespace
+	p:CTagsProperty
+	s:CTagsStructure
+	t:CTagsType
+cobol:
+	d:CTagsData
+	f:CTagsFileDescription
+	g:CTagsGroupItem
+	p:CTagsParagraph
+	P:CTagsProgram
+	s:CTagsSection
+eiffel:
+	c:CTagsClass
+	f:CTagsFeature
+	l:CTagsEntity
+erlang:
+	d:CTagsDefinedName
+	f:CTagsFunction
+	m:CTagsModule
+	r:CTagsRecord
+fortran:
+	b:CTagsBlockData
+	c:CTagsCommonBlocks
+	e:CTagsEntryPoint
+	f:CTagsFunction
+	i:CTagsInterfaceComponent
+	k:CTagsTypeComponent
+	l:CTagsLabel
+	L:CTagsLocalVariable
+	m:CTagsModule
+	n:CTagsNamelist
+	p:CTagsProgram
+	s:CTagsSubroutine
+	t:CTagsType
+	v:CTagsGlobalVariable
+html:
+	a:CTagsAnchor
+	f:CTagsFunction
+java:
+	c:CTagsClass
+	e:CTagsEnumerationValue
+	f:CTagsField
+	g:CTagsEnumeratorName
+	i:CTagsInterface
+	l:CTagsLocalVariable
+	m:CTagsMethod
+	p:CTagsPackage
+javascript:
+	f:CTagsFunction
+	c:CTagsClass
+	m:CTagsMethod
+	p:CTagsProperty
+	v:CTagsGlobalVariable
+lisp:
+	f:CTagsFunction
+lua:
+	f:CTagsFunction
+make:
+	m:CTagsFunction
+pascal:
+	f:CTagsFunction
+	p:CTagsFunction
+perl:
+	c:CTagsGlobalConstant
+	f:CTagsFormat
+	l:CTagsLabel
+	p:CTagsPackage
+	s:CTagsFunction
+	d:CTagsFunction
+php:
+	c:CTagsClass
+	i:CTagsInterface
+	d:CTagsGlobalConstant
+	f:CTagsFunction
+	v:CTagsGlobalVariable
+	j:CTagsFunction
+python:
+	c:CTagsClass
+	f:CTagsFunction
+	i:CTagsImport
+	m:CTagsMember
+	v:CTagsGlobalVariable
+rexx:
+	s:CTagsFunction
+ruby:
+	c:CTagsClass
+	f:CTagsMethod
+	m:CTagsModule
+	F:CTagsSingleton
+scheme:
+	f:CTagsFunction
+	s:CTagsSet
+sh:
+	f:CTagsFunction
+	F:CTagsFile
+slang:
+	f:CTagsFunction
+	n:CTagsNamespace
+sml:
+	e:CTagsException
+	f:CTagsFunction
+	c:CTagsFunctionObject
+	s:CTagsSignature
+	r:CTagsStructure
+	t:CTagsType
+	v:CTagsGlobalVariable
+sql:
+	c:CTagsCursor
+	d:CTagsFunction
+	f:CTagsFunction
+	F:CTagsField
+	l:CTagsLocalVariable
+	L:CTagsLabel
+	P:CTagsPackage
+	p:CTagsFunction
+	r:CTagsRecord
+	s:CTagsType
+	t:CTagsTable
+	T:CTagsTrigger
+	v:CTagsGlobalVariable
+	i:CTagsIndex
+	e:CTagsEvent
+	U:CTagsPublication
+	R:CTagsService
+	D:CTagsDomain
+	V:CTagsView
+	n:CTagsSynonym
+tcl:
+	c:CTagsClass
+	m:CTagsMethod
+	p:CTagsFunction
+vera:
+	c:CTagsClass
+	d:CTagsDefinedName
+	e:CTagsEnumerationValue
+	f:CTagsFunction
+	g:CTagsEnumeratorName
+	l:CTagsLocalVariable
+	m:CTagsMember
+	p:CTagsProgram
+	P:CTagsFunction
+	t:CTagsTask
+	T:CTagsType
+	v:CTagsGlobalVariable
+	x:CTagsExtern
+verilog:
+	c:CTagsGlobalConstant
+	e:CTagsEvent
+	f:CTagsFunction
+	m:CTagsModule
+	n:CTagsNetType
+	p:CTagsPort
+	r:CTagsRegisterType
+	t:CTagsTask
+vhdl:
+	c:CTagsGlobalConstant
+	t:CTagsType
+	T:CTagsTypeComponent
+	r:CTagsRecord
+	e:CTagsEntity
+	C:CTagsComponent
+	d:CTagsPrototype
+	f:CTagsFunction
+	p:CTagsFunction
+	P:CTagsPackage
+	l:CTagsLocalVariable
+vim:
+	a:CTagsAutoCommand
+	c:CTagsCommand
+	f:CTagsFunction
+	m:CTagsMap
+	v:CTagsGlobalVariable
+yacc:
+	l:CTagsLabel
+# vim: ff=unix

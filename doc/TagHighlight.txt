@@ -1,0 +1,1630 @@
+*TagHighlight.txt*       Tag Highlighting
+
+Author:     A. S. Budden <abuddenNOSPAM@NOSPAMgmail.com>
+			Remove NOSPAM.
+
+Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
+            Permission is hereby granted to use and distribute this code,
+            with or without modifications, provided that this copyright
+            notice is copied with it. Like anything else that's free,
+            the TagHighlight plugin is provided *as is* and comes with no
+            warranty of any kind, either expressed or implied. By using
+            this plugin, you agree that in no event will the copyright
+            holder be liable for any damages resulting from the use
+            of this software.
+
+==============================================================================
+1. Contents                   *TagHighlight* *TagHighlight-contents*          {{{1
+
+	1.    Contents                           |TagHighlight-contents|
+
+	2.    TagHighlight Manual                |TagHighlight-manual|
+	2.1   Introduction                       |TagHighlight-intro|
+	2.2   Commands                           |TagHighlight-commands|
+	2.3   Colouring                          |TagHighlight-colours|
+	2.4   Configuration                      |TagHighlight-config|
+	2.4.1 How to Set Options                 |TagHighlight-how-options|
+	2.4.2 Example Configurations             |TagHighlight-example-configs||
+	2.4.3 Option Summary                     |TagHighlight-option-list|
+	2.4.4 Option Details                     |TagHighlight-option-details|
+	2.5   Installation                       |TagHighlight-install|
+	2.5.1 Requirements                       |TagHighlight-requirements|
+	2.5.2 Installation Guide                 |TagHighlight-install-guide|
+
+	3.    Standard Libraries                 |TagHighlight-standard-libraries|
+	3.1   Introduction                       |TagHighlight-stdlib-intro|
+	3.2   Adding More Standard Libraries     |TagHighlight-adding-libraries|
+
+	4.    TagHighlight Customisation         |TagHighlight-custom|
+	4.1   Adding More Languages              |TagHighlight-adding|
+	4.1.1 Example                            |TagHighlight-add-example|
+
+	5.    Troubleshooting                    |TagHighlight-troubleshooting|
+
+	6.    TagHighlight History               |TagHighlight-history|
+
+==============================================================================
+2. TagHighlight Manual           *TagHighlight-manual*                      {{{1
+
+2.1 Introduction                         *TagHighlight-intro*               {{{2
+
+	This set of scripts is designed to increase the number of highlighting
+	groups used by Vim.  This makes it quicker and easier to spot errors in
+	your code.  By using ctags and parsing the output, the typedefs, #defines,
+	enumerated names etc are all clearly highlighted in different colours.
+
+	The idea was based on the comments in |tag-highlight|, but I wanted to
+	take it a little further.
+
+	This is achieved through a python script (also available as a compiled
+	executable if you don't have python: see |TagHighlight-requirements|) to
+	interact with ctags and to parse the result and a Vim script that makes
+	Vim read the resulting files.  Finally, a new command (|:UpdateTypesFile|)
+	is added (with optional ! for recursive operation) to keep the generated
+	files up to date.
+
+	At present, the highlighter supports the following languages:
+
+		* C/C++
+		* C#
+		* Java
+		* Perl
+		* PHP
+		* Python
+		* Ruby (largely untested)
+		* VHDL (if your version of ctags supports it)
+
+	It should also work correctly with Charles Campbell's rainbow.vim bracket
+	highlighter.
+
+	The vast majority of the testing has been with C source code, so I'd be
+	very interested in any feedback on the use with C++ and the various other
+	languages.
+
+	Currently requires exuberant ctags or one of its derivatives.  Exuberant
+	ctags is available from:
+>
+		http://ctags.sourceforge.net
+<
+	Adding more languages is extremely simple (as long as they're supported by
+	Exuberant ctags); see |TagHighlight-adding|.
+
+					                     *TagHighlight-website*
+
+	Screenshots of the highlighter in operation are available at the website:
+>
+		http://www.cgtk.co.uk/taghighlight
+<
+                                         *TagHighlight-source-code*
+
+	The plugin is distribute as source code (binaries of the python components
+	are also available for computers that do not have python installed) The
+	source code is managed using the Git version control system and is
+	available on github at:
+>
+		https://github.com/abudden/taghighlight
+<
+
+------------------------------------------------------------------------------
+
+2.2 Commands                             *TagHighlight-commands*            {{{2
+
+	The following commands are provided by this plugin:
+
+	:UpdateTypesFile                 *:UpdateTypesFile*
+
+		This command creates the syntax highlighting file used to show the
+		extra colouring.  It then updates all of the open files automatically.
+		By default, it scans recursively into subdirectories of the top level
+		project source directory.  To find this, it looks for a file called
+		"tags" or a file called "taghl_config.txt" in the directory containing
+		the source code or any of its parents (all the way up to the root
+		directory).  If it finds one of these files, it assumes that the
+		directory containing the file also contains all of the source code.
+		If it can't find either of the files, it will use the current
+		directory.  This operation can be customised using the option
+		|TagHL-DefaultDirModePriority|.
+
+		NOTE: Recursion is now on by default.  To turn it off, set the option
+		|TagHL-Recurse| to be 'False' or 0.  This can either be done globally
+		in |g:TagHighlightSettings| or in a file named |taghl_config.txt| in
+		the directory containing the source file.
+
+	:UpdateTypesFileOnly             *:UpdateTypesFileOnly*
+
+		This command operates in the same manner as |UpdateTypesFile|, but
+		it uses the current tags file rather than generating a new one
+		(useful if you're generating tags files as part of your build
+		process.
+
+	:ReadTypes                       *:ReadTypes*
+
+		This comment can be used to manually read in any types files to
+		highlight keywords.  Generally not likely to be used as the
+		built-in autocmds should load the types files when a file is
+		loaded or the types files are updated.
+
+------------------------------------------------------------------------------
+
+2.3 Colouring                            *TagHighlight-colours*             {{{2
+
+	The tag highlighter uses a number of additional highlighting groups to
+	differentiate between different types of tag.  These are not supported as
+	standard by many colour schemes.  You can either download the "bandit"
+	colour scheme from:
+>
+		http://www.cgtk.co.uk/bandit
+<
+	(screenshots of C source code on the |TagHighlight-website|) or you
+	can configure the extra highlighting groups yourself.  The following
+	highlight groups should be defined (others may be needed for different
+	languages):
+
+		ClassName       : Class
+		DefinedName     : Define
+		Enumerator      : Enumerator
+		Function        : Function or method
+		EnumerationName : Enumeration name
+		Member          : Member (of structure or class)
+		Structure       : Structure Name
+		Type            : Typedef
+		Union           : Union Name
+		GlobalConstant  : Global Constant
+		GlobalVariable  : Global Variable
+		LocalVariable   : Local Variable
+
+	An example of how to highlight one of these would be to include the
+	following line in your colour scheme (see |:highlight|):
+>
+		hi Enumerator guifg="c000c0"
+<
+	You can, of course, also link the groups to another highlighting group
+	using something like:
+>
+		hi link Type Keyword
+<
+	However, this loses a lot of the advantages of having the tag highlighter
+	in the first place - being able to distinguish between different types!
+
+------------------------------------------------------------------------------
+
+2.4 Configuration                        *TagHighlight-config*              {{{2
+
+	There are a large number of configuration options that allow customisation
+	of the operation of the highlighter.  For simple use, none of these really
+	need to be set.  Options can be set globally, per project or per buffer;
+	see |TagHighlight-how-options| for more information.
+
+2.4.1 How to Set Options                 *TagHighlight-how-options*         {{{3
+
+	Options can be set globally, per project or per buffer.  Global options
+	are overridden by project options, which in turn are overridden by
+	buffer-specific options.
+
+	Global Options                   *g:TagHighlightSettings*
+
+		Global options are set in a global |Dictionary|.  The variable
+		name is |g:TagHighlightSettings|.  The keys in the dictionary are
+		the option names and the values are the option values.  The safest
+		way to set a value in this dictionary is to use something like
+		this:
+>
+			if ! exists('g:TagHighlightSettings')
+				let g:TagHighlightSettings = {}
+			endif
+			let g:TagHighlightSettings['TagFileName'] = 'tagfile'
+			let g:TagHighlightSettings['CtagsExecutable'] = 'etags.exe'
+<
+		If you want to override any existing options (or you want to be
+		lazy...) you can probably also do it this way:
+>
+			let g:TagHighlightSettings = {'TagFileName': 'tagfile', 'CtagsExecutable': 'etags.exe'}
+<
+	Project Options                  *taghl_config.txt*
+
+		Project options are set in a text file in the project directory.
+		The location of this file can be specified using the options
+		|TagHL-ProjectConfigDirModePriority| and (if an explicit location
+		is needed) |TagHL-ProjectConfigFileDirectory|.  By default. the
+		file name of the project config file is "taghl_config.txt".  If
+		for any reason you need to change this, it can be customised using
+		the option |TagHL-ProjectConfigFileName| (this probably needs to
+		be a Global option set in |g:TagHighlightSettings|.
+
+		The format of the project config file is a simple text file with
+		colons used to delimit keys and values.  A simple example would
+		look like this:
+>
+			SkipPatterns:Skip.*,AnotherPattern\d+
+			IncludeLocals:1
+			UserLibraryDir:c:/user_libraries
+			PythonVariantPriority:
+				if_pyth
+				if_pyth3
+				python
+				compiled
+<
+		Most lines start with an option name (there is no leading
+		whitespace on these lines).  The option name is everything up to
+		the colon.  After the colon is the value.
+
+		For boolean options (such as Recurse and IncludeLocals in the
+		example above), any of True, 1, False or 0 are acceptable (note:
+		True and False are case sensitive).
+
+		For string entries (such as UserLibraryDir above), all of the text
+		after the first colon is treated as the value.
+
+		For list entries (such as SkipPatterns and PythonVariantPriority
+		above), you can either put all the entries on one line with commas
+		to separate them, or you can put one entry on each subsequeunt
+		line with a tab character at the start of the line.
+
+	Buffer Options                   *b:TagHighlightSettings*
+
+		Buffer specific options are set in a buffer-local |Dictionary| in
+		the same way as the global options in |g:TagHighlightSettings|.
+		The name of this |Dictionary| is |b:TagHighlightSettings|.  See
+		the description for |g:TagHighlightSettings| for usage
+		instructions.
+
+2.4.2 Example Configurations             *TagHighlight-example-configs*     {{{3
+
+	Introduction                                                          {{{4
+		
+		This section contains a few examples of configurations that may be
+		useful.  It is hoped that most users will be able to use TagHighlight
+		without setting any options at all, but these give some examples of
+		some more complex scenarios.
+	
+	Trivial Configuration                                                 {{{4
+
+		Use case: User has source code placed in multiple subdirectories and
+		          either has the current directory to be the project root or
+		          rarely deletes the tags file that is generated.
+
+		Implementation:
+
+			First time round, use |:cd| to get to the project root and run:
+>
+				:UpdateTypesFile
+<
+			After the first run, you can open any source file in the project,
+			with the current directory set anywhere you like; the existing
+			tags file will be found and the location of that will be used as
+			the project root.
+
+	Low Complexity                                                        {{{4
+
+		Use case: User has source code all in one directory but has a lot of
+		          subdirectories that would take a long time to scan.  The
+		          user therefore wishes to disable recursive scanning.  User
+				  project uses Qt4, so the user would like the classes etc
+				  from Qt4 (e.g. QString) to be highlighted.
+
+		Implementation:
+			
+			Make sure that you have installed the standard libraries (see 
+			|TagHighlight-install-stdlib|).  The Qt4 library will be loaded
+			automatically.  Create a file called taghl_config.txt in the
+			source directory.  In that file, add the following line (with no
+			leading whitespace).
+>
+				Recurse:False
+<
+			No other configuration should be necessary; just run:
+>
+				:UpdateTypesFile
+<
+	Medium Complexity                                                     {{{4
+
+		Use case: User has (C) source code in the current directory; project
+				  uses an external library (stored elsewhere on the hard disk)
+				  but user would like to highlight the keywords from the user
+				  library as well as the keywords from the main project.  User
+				  is running a version of Vim with dynamic support for BOTH
+				  python2 and python3, but would like to use python 2 by
+				  preference.  User would like to include local variables in
+				  the highlighted keyword list.  Exuberant ctags is installed
+				  in the system path with executable name 'etags'.
+
+		Implementation:
+
+			First of all, we'll set TagHighlight up to use python 2 via the
+			python interface and to recognise the non-standard ctags
+			executable name.  In vimrc, add the following lines:
+>
+				if ! exists('g:TagHighlightSettings')
+					let g:TagHighlightSettings = {}
+				endif
+				let g:TagHighlightSettings['ForcedPythonVariant'] = 'if_pyth'
+				let g:TagHighlightSettings['CtagsExecutable'] = 'etags'
+<
+			Next, generate the types highlighter for the library.  Let's
+			assume that the library is stored in /home/user/libraries/lib1.
+			Open up a new Vim and type:
+>
+				:cd /home/user/libraries/lib1
+				:UpdateTypesFile
+<
+			That should create a file called types_c.taghl in the library
+			directory.
+
+			Now, create a project config file in the project directory.  The
+			file should be called taghl_config.txt.  In that file, add the
+			following lines (no leading whitespace):
+>
+				IncludeLocals:True
+				UserLibraries:/home/user/libraries/lib1/types_c.taghl
+<
+			Open any source file in the project and run:
+>
+				:UpdateTypesFile
+<
+
+2.4.3 Option Summary                     *TagHighlight-option-list*         {{{3
+
+	There are a lot of options for TagHighlight.  They are mentioned in this
+	section, grouped by their purpose.  You can find an alphabetical list with
+	more details in |TagHighlight-option-details|.  Along side each option
+	name is a link, starting with TagHL- and then the option name (to avoid
+	namespace clashes with other plugins).  Use CTRL-] on the TagHL- prefixed
+	option name to jump to detailed help on it.
+
+	What files to scan:
+
+		Languages                        Link:|TagHL-Languages|
+			List of languages to scan when generating highlighter.
+
+		ParsingSkipList                  Link:|TagHL-ParsingSkipList|
+		   List of files for which types highlighter should not be loaded.
+
+		Recurse                          Link:|TagHL-Recurse|
+		   When generating tags, recurse into subdirectories.
+
+		SourceDir                        Link:|TagHL-SourceDir|
+		   Explicit location of the source code that you want to scan.
+
+	What to include in the generated types file
+
+		IncludeLocals                    Link:|TagHL-IncludeLocals|
+		   Include local variables (not context aware) in types highlighter.
+
+		IncludeSynMatches                Link:|TagHL-IncludeSynMatches|
+		   Include syntax matches in highlighter (see warning in details).
+
+		SkipPatterns                     Link:|TagHL-SkipPatterns|
+		   List of python REs for keywords that should be skipped.
+
+		SkipVimKeywords                  Link:|TagHL-SkipVimKeywords|
+		   Don't include vim keywords in highlighter.
+
+	Customisation:
+
+		PreReadHooks                     Link:|TagHL-PreReadHooks|
+		   List of functions to call before reading types.
+
+		PostReadHooks                    Link:|TagHL-PostReadHooks|
+		   List of functions to call after reading types.
+
+		PreUpdateHooks                   Link:|TagHL-PreUpdateHooks|
+		   List of functions to call before updating types.
+
+		PostUpdateHooks                  Link:|TagHL-PostUpdateHooks|
+		   List of functions to call after updating types.
+
+	Disabling built-in functionality:
+
+		DisableTypeParsing               Link:|TagHL-DisableTypeParsing|
+		   Don't read types highlighter (disable highlight functionality).
+
+		DoNotGenerateTags                Link:|TagHL-DoNotGenerateTags|
+		   Don't generate tags (use an existing tags file).
+
+	How to Run Python and Ctags:
+
+		ForcedPythonVariant              Link:|TagHL-ForcedPythonVariant|
+		   Specify specific python variant to use.
+
+		PathToPython                     Link:|TagHL-PathToPython|
+		   Specify path to python executable.
+
+		PythonVariantPriority            Link:|TagHL-PythonVariantPriority|
+		   Specify priority order of different python variants.
+
+		CtagsExecutable                  Link:|TagHL-CtagsExecutable|
+		   Specify the name of (or full path to) exuberant ctags.
+
+	Locations of Files (normal):
+
+		DefaultDirModeSearchWildcards    Link:|TagHL-DirModeSearchWildcards|
+		   What to search for when deciding which directory to use.
+
+		DefaultDirModePriority           Link:|TagHL-DefaultDirModePriority|
+		   Which directories to search by default.
+
+		MaxDirSearchLevels               Link:|TagHL-MaxDirSearchLevels|
+		   How far up the directory tree to search.
+
+	Location and name of Project Configuration File:
+
+		ProjectConfigFileDirModePriority Link:|TagHL-ProjectConfigFileDirModePriority|
+		   Which directories to search for project config file.
+
+		ProjectConfigFileDirectory       Link:|TagHL-ProjectConfigFileDirectory|
+		   Explicit location for project config file.
+
+		ProjectConfigFileName            Link:|TagHL-ProjectConfigFileName|
+		   File name for project config file.
+
+		ProjectConfigFileSearchWildcards Link:|TagHL-DirModeSearchWildcards|
+		   What to search for when deciding which directory to use.
+
+	Location and name of tag file:
+
+		TagFileDirModePriority           Link:|TagHL-TagFileDirModePriority|
+		   Which directories to search for tag file.
+
+		TagFileDirectory                 Link:|TagHL-TagFileDirectory|
+		   Explicit location for tag file.
+
+		TagFileName                      Link:|TagHL-TagFileName|
+		   File name for tag file.
+
+		TagFileSearchWildcards           Link:|TagHL-DirModeSearchWildcards|
+		   What to search for when deciding which directory to use.
+
+	Location and name of types file:
+
+		TypesFileDirModePriority         Link:|TagHL-TypesFileDirModePriority|
+		   Which directories to search for types highlighter file.
+
+		TypesFileDirectory               Link:|TagHL-TypesFileDirectory|
+		   Explicit location for types highlighter file.
+
+		TypesFileExtension               Link:|TagHL-TypesFileExtension|
+		   File extension for types highlighter file.
+
+		TypesFileNameForce               Link:|TagHL-TypesFileNameForce|
+		   Force an explicit file name for the types highlighter file.
+
+		TypesFilePrefix                  Link:|TagHL-TypesFilePrefix|
+		   Prefix for the types highlighter file.
+
+		TypesFileSearchWildcards         Link:|TagHL-DirModeSearchWildcards|
+		   What to search for when deciding which directory to use.
+
+	Libraries:
+
+		DisableStandardLibraries         Link:|TagHL-DisableStandardLibraries|
+			Don't try loading standard libraries.
+
+		ForcedStandardLibraries          Link:|TagHL-ForcedStandardLibraries|
+		   Always load specified standard libraries.
+
+		UserLibraries                    Link:|TagHL-UserLibraries|
+		   List of user libraries that should be loaded.
+
+		UserLibraryDir                   Link:|TagHL-UserLibraryDir|
+		   Location of user libraries specified with relative path.
+
+	Debugging:
+
+		DebugLevel                       Link:|TagHL-DebugLevel|
+			How much debugging information should be printed.
+
+		DebugFile                        Link:|TagHL-DebugFile|
+			Write debug log to a file.
+
+		DebugPrintTime                   Link:|TagHL-DebugPrintTime|
+			When writing to file, include timestamps.
+
+	Internal Use Only:
+
+		CtagsExeFull                     Link:|TagHL-CtagsExeFull|
+			Internal use only.
+
+		CtagsFileLocation                Link:|TagHL-CtagsFileLocation|
+		   Internal use only.
+
+		TypesFileLocation                Link:|TagHL-TypesFileLocation|
+		   Internal use only.
+
+2.4.4 Option Details                     *TagHighlight-option-details*      {{{3
+
+	CtagsExeFull                         *TagHL-CtagsExeFull*
+		Used internally to tell the python part of the application where ctags
+		is.  Do not use this option as it will be automatically overwritten.
+		Instead, see |TagHL-CtagsExecutable|.
+
+	CtagsExecutable                      *TagHL-CtagsExecutable*
+		This option allows you to specify which exuberant ctags executable to
+		run.  You can either specify an absolute path (e.g. "/usr/bin/ctags")
+		or the name of an executable in the system path (e.g. "etags" if your
+		system names Exuberant ctags in that way).
+
+		Option Type: String
+		Default: "ctags"
+
+	CtagsFileLocation                    *TagHL-CtagsFileLocation*
+		Used internally to handle the location of the tag file.  Do not use
+		this option as it will be automatically overwritten.  Instead, see
+		|TagHL-DefaultDirModePriority|, |TagHL-TagFileDirModePriority| and
+		|TagHL-TagFileDirectory|.
+
+		See also |TagHL-TagFileName|.
+
+	DebugFile                            *TagHL-DebugFile*
+		If set to something other than "None" (the default), write debugging
+		messages to a file.
+
+		Option Type: String
+		Default: "None"
+
+	DebugLevel                           *TagHL-DebugLevel*
+		This is a string describing how much debugging information to print.
+		By default, this is set to 'Error': only errors or critical problems
+		are reported.  Possible values are: "None" (don't print anything),
+		"Critical" (only print critical errors, i.e. those where the plugin is
+		installed incorrectly or similar), "Error" (print errors and critical
+		problems), "Warning" (warn of potential issues), "Status" (report most
+		actions that are being carried out) or "Information" (report
+		everything that's happening).
+
+		Option Type: String
+		Default: "Error"
+
+	DebugPrintTime                       *TagHL-DebugPrintTime*
+		If True or 1, when writing debug information to a file (see the option
+		|TagHL-DebugFile|, prefix each entry with a timestamp.  Only supported
+		for messages generated in Vim, not by the python script.
+
+		Option Type: Boolean
+		Default: False
+
+	DefaultDirModePriority               *TagHL-DefaultDirModePriority*
+		There are several 'DirModePriority' options in addition to this one.
+		These are used to determine where to find or place the project
+		configuration file, the tags file and the types file.  The options
+		that configure each of these are |TagHL-ProjectConfigDirModePriority|,
+		|TagHL-TagFileDirModePriority| and |TagHL-TypesFileDirModePriority|.
+
+		By default, all three of these priority settings are set simply as
+		["Default"].  Where "Default" is found in the list, the value of
+		|TagHL-DefaultDirModePriority| will be used.
+
+		When determining which directory to use, the plugin will try each of
+		the methods in order until it gets a match.  The available methods
+		of searching are:
+
+			Explicit:
+				If a directory has been explicitly set (using the option
+				|TagHL-ProjectConfigFileDirectory| for project configuration
+				files, the option |TagHL-TagFileDirectory| for tag files and
+				the option |TagHL-TypesFileDirectory| for types highlighter
+				files), this directory will be used if this dir mode is
+				encountered.
+
+			UpFromFile:
+				The plugin will start in the directory containing the current
+				file and look for any file matching the wildcards specified in
+				the option |TagHL-DirModeSearchWildcards|.  If none of the
+				wildcards match, it will try the parent directory and then
+				keep trying one level higher until it either finds a match or
+				reaches the top level directory (at which point the next
+				dir mode will be tried if no match is found).  If you wish to
+				stop it searching all the way to the top level directory, you
+				can limit the number of levels with |TagHL-MaxDirSearchLevels|.
+
+			UpFromCurrent:
+				This works in the same way as UpFromFile, except that it
+				starts in the current directory (see |:pwd| or |getcwd()|).
+
+			CurrentDirectory:
+				This will use the current working directory (see |:pwd| or
+				|getcwd()|) explicitly (any dir modes following this one will
+				never be used).
+
+			FileDirectory:
+				This will use the directory containing the currently open file
+				(any dir modes following this one will never be used).
+
+		The default value is ["Explicit", "UpFromFile", "CurrentDirectory"].
+		Using the project config file as an example, when deciding where this
+		file should be, it will first check for the presence of the option
+		|TagHL-ProjectConfigFileDirectory|.  If this option is set, it will
+		use that directory.  If not, it will start in the directory containing
+		the currently open file and keep going up a level until it finds any
+		file matching one of the wildcards in |TagHL-DirModeSearchWildcards|.
+		If it reaches the top level directory without finding a file, it will
+		use Vim's current working directory.
+
+		Option Type: List
+		Default:
+			If |TagHL-Recurse| is True (the default), the default is
+			["Explicit", "UpFromFile", "CurrentDirectory"].
+
+			If |TagHL-Recurse| is False, the default is ["FileDirectory"].
+
+	DefaultDirModeSearchWildcards        *TagHL-DefaultDirModeSearchWildcards*
+		This option contains the wildcards that should be checked for when
+		trying to determine which directory to use (in either the UpFromFile
+		or UpFromCurrent dir mode).  The default is to match when either a
+		project configuration file is found or a tags file is found.
+
+		Note that the wildcard will only match against readable files, not
+		directories.
+
+		Option Type: List
+		Default: [value of TagFileName option, value of ProjectConfigFileName option]
+
+	DisableStandardLibraries             *TagHL-DisableStandardLibraries*
+		If installed, the standard libraries will automatically be loaded if
+		the conditions specified in their configuration file match.  Setting
+		this option to True or 1 will disable the checks and the standard
+		libraries will never be loaded.  For more information on standard
+		libraries, see |TagHighlight-standard-libraries|.
+
+		Option Type: Boolean
+		Default: False
+
+	DisableTypeParsing                   *TagHL-DisableTypeParsing*
+		This option disables loading of types highlighter files: no custom
+		types will be highlighted.
+
+		Option Type: Boolean
+		Default: False
+
+	DoNotGenerateTags                    *TagHL-DoNotGenerateTags*
+		If this option is set, calling |:UpdateTypesFile| will be functionally
+		equivalent to calling |:UpdateTypesFileOnly|: it will be assumed that
+		a tag file already exists and ctags will not be run.
+
+		Option Type: Boolean
+		Default: False (generate tags)
+
+	ForcedPythonVariant                  *TagHL-ForcedPythonVariant*
+		There are a number of different python variants that are supported for
+		running the python part of the plugin.  If this option is set to one
+		of the strings that are supported by |TagHL-PythonVariantPriority|,
+		that variant will always be used (and the plugin will fail if that
+		variant is not available).
+
+		Option Type: String
+		Default: None (unset)
+
+	ForcedStandardLibraries              *TagHL-ForcedStandardLibraries*
+		Any standard library names that are listed in this option will be
+		loaded unconditionally.  For example, if this option is set to
+		["Android SDK", "JDK"], the Android SDK highlight definitions and the
+		Java Development Kit highlight definitions will be loaded (as long as
+		the highlight libraries have been installed).  For more information,
+		see |TagHighlight-standard-libraries|.
+
+		Option Type: List
+		Default: [] (empty list)
+
+	IncludeLocals                        *TagHL-IncludeLocals*
+		If set to True or 1, local variables will be included in the types
+		highlighter file.  Note that ctags provides no context for these
+		local variables and (if support for Dr Chip's rainbow plugin is to be
+		provided) it would be impossible to make the highlighting context
+		sensitive anyway, so the names will be highlighted whereever they may
+		appear in the file.  As far as I am aware, there is no way round this,
+		but I'd be interested to hear from anyone who has a good suggestion.
+
+		Option Type: Boolean
+		Default: False
+
+	IncludeSynMatches                    *TagHL-IncludeSynMatches*
+		If set to True or 1, tags that cannot be highlighted with the Vim
+		command "syn keyword" will be highlighted using the Vim command
+		"syn match".  While this allows highlighting of a lot more tags,
+		it uses a regular expression matching engine and as the number of
+		tags increases, Vim gets slower and slower.  Therefore, use with
+		caution.
+
+		Option Type: Boolean
+		Default: False
+
+	Languages                            *TagHL-Languages*
+		By default, when |:UpdateTypesFile| is run, any files that ctags
+		recognises will be scanned for tags and types highlighters will be
+		generated for each language in the resulting tags file that is
+		supported by |TagHighlight|.  This option can be used to restrict both
+		the types and tags files to a limited set of languages.  For example,
+		if you have a directory with C code, Python code, Perl code and Ruby
+		code, but you only want to generated tags and types for C and Python,
+		set this option to ["c","python"].
+
+		Option Type: List
+		Default: [] (check all supported languages)
+
+	MaxDirSearchLevels                   *TagHL-MaxDirSearchLevels*
+		When searching for a directory in which to store or from which to read
+		the project config, tags or types highlighter files, there are two
+		modes (UpFromFile and UpFromCurrent) that can be used to start in a
+		particular directory and try every directory above that one until the
+		file is found.  If there is a need to limit the number of directories
+		that will be tried (mainly likely if there is a deeply nested
+		directory structure and Vim seems a little slow), this option can be
+		used.  If set to 0 (the default), it will keep going until it reaches
+		the root directory.  If the option is set to 1, it will only check the
+		current directory; if 2 it will check the current directory and the
+		parent directory etc.
+
+		For more information, see |TagHL-DefaultDirModePriority|.
+
+		Option Type: Integer
+		Default: 0
+
+	ParsingSkipList                      *TagHL-ParsingSkipList*
+		If you're editing a lot of files and for most you want tag highlight
+		to run but one or two you don't, put the filenames of the ones for
+		which you don't want highlighting in this list and the types
+		highlighter will not be loaded for those files.
+
+		Option Type: List
+		Default: [] (load types highlighter for all files)
+
+	PathToPython                         *TagHL-PathToPython*
+		When using the python variant "python" but with python not in the
+		path, this option allows you to specify the path to the python
+		executable.  See |TagHL-PythonVariantPriority| for more information.
+
+		Option Type: String
+		Default: None (look in path if required)
+
+	PreReadHooks                         *TagHL-PreReadHooks*
+		Any function names that are listed in this option will be called
+		immediately prior to reading the types highlighter file.  This can be
+		used to allow complex customisation of |TagHighlight| and is for
+		advanced users only.  If you find a use for this, or any of the other
+		hooks, please let me know as I'd be interested to hear your use case!
+		The function must accept two arguments: the first is the full path and
+		filename of the current source code file and the second is the
+		relevant language suffix specified in the corresponding language
+		definition file (see |TagHighlight-add-example|.
+
+		Option Type: List
+		Default: [] (no hooks)
+
+	PostReadHooks                        *TagHL-PostReadHooks*
+		Any function names that are listed in this option will be called
+		immediately after reading the types highlighter file.  This can be
+		used to allow complex customisation of |TagHighlight| and is for
+		advanced users only.  If you find a use for this, or any of the other
+		hooks, please let me know as I'd be interested to hear your use case!
+		The function must accept two arguments: the first is the full path and
+		filename of the current source code file and the second is the
+		relevant language suffix specified in the corresponding language
+		definition file (see |TagHighlight-add-example|.
+
+		Option Type: List
+		Default: [] (no hooks)
+
+	PreUpdateHooks                       *TagHL-PreUpdateHooks*
+		Any function names that are listed in this option will be called
+		immediately prior to generating a new types highlighter file.  This
+		can be used to allow complex customisation of |TagHighlight| and is
+		for advanced users only.  If you find a use for this, or any of the
+		other hooks, please let me know as I'd be interested to hear your use
+		case!  The function takes no arguments.
+
+		Option Type: List
+		Default: [] (no hooks)
+
+	PostUpdateHooks                      *TagHL-PostUpdateHooks*
+		Any function names that are listed in this option will be called
+		immediately after generating a new types highlighter file.  This can
+		be used to allow complex customisation of |TagHighlight| and is for
+		advanced users only.  If you find a use for this, or any of the other
+		hooks, please let me know as I'd be interested to hear your use case!
+		The function takes no arguments.
+
+		Option Type: List
+		Default: [] (no hooks)
+
+	ProjectConfigFileDirModePriority     *TagHL-ProjectConfigFileDirModePriority*
+		This option is used to determine which directories to look in for a
+		project configuration file.  See |TagHL-DefaultDirModePriority| for
+		details.
+
+		Option Type: List
+		Default: ["Default"] (use DefaultDirModePriority value)
+
+	ProjectConfigFileDirectory           *TagHL-ProjectConfigFileDirectory*
+		If the dir mode priority for project config files (see the option
+		|TagHL-ProjectConfigFileDirModePriority|) contains the mode
+		"Explicit", the directory specified in this option will be used
+		unconditionally if the option has been set.
+
+		Option Type: String
+		Default: None (no explicit directory)
+
+	ProjectConfigFileName                *TagHL-ProjectConfigFileName*
+		This option allows customisation of the file name for project
+		configuration files.  The default file name is taghl_config.txt.
+
+		Option Type: String
+		Default: "taghl_config.txt"
+
+	PythonVariantPriority                *TagHL-PythonVariantPriority*
+		The python part of |TagHighlight| can be run in a number of ways,
+		depending on your system configuration.  For most users, this should
+		be handled completely automatically, but if you want to customise
+		things, this option is the best way to start.  There are currently
+		four supported python variants:
+
+			if_pyth3: When using this variant, the python code will be run
+			          using the Python 3.x interface built into Vim.  If using
+			          a Vim that is compiled with +python/dyn and
+			          +python3/dyn, be aware that this may cause problems if
+			          you want to use the python 2.x interface.  See the
+			          details on case 4 under |:py3file|.
+
+			if_pyth:  When using this variant, the python code will be run
+			          using the Python 2.x (at least version 2.6 required)
+			          interface built into Vim.  See the comments above
+			          regarding potential conflicts between the two python
+			          versions.
+
+			python:   When using this variant. the python code will be run
+			          using the version of python that is in the path or
+			          specified with the option |TagHL-PathToPython|.
+
+			compiled: When using this variant, the compiled executable version
+			          of the python part of the plugin will be used (so no
+			          system version of python is required).  Note that this
+			          requires the compiled version to be installed as it is
+			          not part of the main distribution.  See the installation
+					  guide for more information: |TagHighlight-install|.
+
+		Option Type: List
+		Default: ["if_pyth3", "if_pyth", "python", "compiled"]
+
+	Recurse                              *TagHL-Recurse*
+		If this option is set to True or 1, any call to |:UpdateTypesFile|
+		will scan recursively: tag files (and therefore the types highlighter
+		file based on that tag file) will contain tags from source code in the
+		source directory and all subdirectories of that directory.  If this
+		option is not set, or set to False or 0, only source code in the
+		source directory will be scanned.
+
+		Option Type: Boolean
+		Default: True (recurse)
+
+	SkipPatterns                         *TagHL-SkipPatterns*
+		Any (python) regular expressions listed in this option will be matched
+		against any keyword names found in the tags file.  If they match, the
+		keyword names will be omitted from the types highlighter file.  For
+		example, set this option to ['MyVar.*', 'Number[0-9]+'] to exclude the
+		variables MyVarOne, MyVar, MyVariable, Number0, Number10 etc.
+
+		Option Type: List
+		Default: [] (no patterns)
+
+	SkipVimKeywords                      *TagHL-SkipVimKeywords*
+		As well as being unable to use "syn keyword" for tag names that
+		contain non-keyword characters, Vim also cannot use "syn keyword" to
+		match certain vim keywords (such as "contains").  There are very few
+		of these keywords, so if any exist in the tag file, they are matched
+		with a "syn match" command.  If you'd rather just omit them ("syn match"
+		highlighting is much slower than "syn keyword" highlighting), set this
+		option to True or 1.  See also |TagHL-IncludeSynMatches|.
+
+		Option Type: Boolean
+		Default: False (include Vim keywords)
+
+	SourceDir                            *TagHL-SourceDir*
+		If this option is set to an explicit directory, that directory will be
+		scanned for source files when generating tags.  By default, if a
+		project config file is found, the directory containing that will be
+		used.  If it wasn't, but a tag file was found, the directory
+		containing that will be used.  If it wasn't, but a types highlighter
+		file was found, the directory containing that will be used.  Finally,
+		if all of the other checks fail, the current working directory will be
+		used.
+
+		Option Type: String
+		Default: None (use normal scanning method)
+
+	TagFileDirModePriority               *TagHL-TagFileDirModePriority*
+		This option is used to determine which directories to look in for a
+		tag file or in which directory to place a tag file when generating new
+		tags.  See |TagHL-DefaultDirModePriority| for details.
+
+		Option Type: List
+		Default: ["Default"] (use DefaultDirModePriority value)
+
+	TagFileDirectory                     *TagHL-TagFileDirectory*
+		If the dir mode priority for tag files (see the option
+		|TagHL-TagFileDirModePriority|) contains the mode "Explicit", the
+		directory specified in this option will be used unconditionally if the
+		option has been set.
+
+		Option Type: String
+		Default: None (no explicit directory)
+
+	TagFileName                          *TagHL-TagFileName*
+		By default, the file generated by ctags containing the tags
+		definitions are stored in a file named "tags".  If you wish to change
+		this, adjust this option appropriately.
+
+		Option Type: String
+		Default: "tags"
+
+	TypesFileDirModePriority             *TagHL-TypesFileDirModePriority*
+		This option is used to determine which directories to look in for a
+		types highlighter file or in which directory to place a types
+		highlighter file when generating a new types highlighter.  See
+		|TagHL-DefaultDirModePriority| for details.
+
+		Option Type: List
+		Default: ["Default"] (use DefaultDirModePriority value)
+
+	TypesFileDirectory                   *TagHL-TypesFileDirectory*
+		If the dir mode priority for types highlighter files (see the option
+		|TagHL-TypesFileDirModePriority|) contains the mode "Explicit", the
+		directory specified in this option will be used unconditionally if the
+		option has been set.
+
+		Option Type: String
+		Default: None (no explicit directory)
+
+	TypesFileExtension                   *TagHL-TypesFileExtension*
+		By default, types highlighter files have taghl as an extension.  With
+		all the default options, the types highlighter file for C source code
+		will be called types_c.taghl.  This is constructed out of several
+		parts:
+
+			"types" - This part is set with |TagHL-TypesFilePrefix|.
+			"_" - This is hard coded (although see |TagHL-TypesFileNameForce|).
+			"c" - This is the suffix for the current language.
+			"."	- This is hard coded.
+			"taghl" - This part is set with |TagHL-TypesFileExtension|.
+
+		If really necessary, |TagHL-TypesFileNameForce| can be used to specify
+		an explicit filename, but I would discourage this.
+
+		Option Type: String
+		Default: "taghl"
+
+	TypesFileLocation                    *TagHL-TypesFileLocation*
+		Used internally to tell the python part of the application where the
+		types file should be stored.  Do not use this option as it will be
+		automatically overwritten.  Instead, see |TagHL-TypesFileDirectory|
+		and |TagHL-TypesFileDirModePriority|.
+
+	TypesFileNameForce                   *TagHL-TypesFileNameForce*
+		Use this if you REALLY need to force a specific file name for the
+		types highlighter file.  It is generally better to configure
+		|TagHL-TypesFilePrefix| and |TagHL-TypesFileExtension|.
+
+		Option Type: String
+		Default: None (use normal rules for generating file name)
+
+	TypesFilePrefix                      *TagHL-TypesFilePrefix*
+		Use this to configure the prefix of the generated (and read) types
+		highlighter files.  See |TagHL-TypesFileExtension| for more
+		information.
+
+		Option Type: String
+		Default: "types"
+
+	UserLibraries                        *TagHL-UserLibraries*
+		If you have some libraries that are used by your code, but which are
+		not kept with your code, it is possible to highlight keywords used in
+		those libraries when working on the main code.  To do this, generate a
+		types highlighter file for the library code and then add the path to
+		the library types highlighter file to this option.  The path can be an
+		absolute path to the file (e.g. ["c:/libraries/mylibrary.taghl"]) or it
+		can be relative to the directory specified in the configuration option
+		|TagHL-UserLibraryDir| (e.g. for the same file as specified above, if
+		the option |TagHL-UserLibraryDir| is set to "c:/libraries", you could
+		set this option to ["mylibrary.taghl"].
+
+		Option Type: List
+		Default: [] (no user libraries)
+
+	UserLibraryDir                       *TagHL-UserLibraryDir*
+		Location of libraries specified with relative paths in the option
+		|TagHL-UserLibraries|.  See the help for |TagHL-UserLibraries| for
+		more information.
+
+		Option Type: String
+		Default: "." (use current directory)
+
+------------------------------------------------------------------------------
+
+2.5 Installation                         *TagHighlight-install*             {{{2
+
+2.5.1 Requirements                       *TagHighlight-requirements*        {{{3
+
+	|TagHighlight| consists of some Vim scripts and some Python scripts.  The
+	Vim scripts require a relatively recent Vim (at least version 7).  To use
+	the python 3 interface, version 7.3 is required.
+
+	As described in |TagHL-PythonVariantPriority|, there are a number of
+	different ways you can run the Python part of the application.  If your
+	Vim has the python interface compiled in, with python version 2.6 or
+	greater and it works, you can use that to run the python code (you'll need
+	python installed on your system).  If you have the python3 interface, you
+	can also use that.  Alternatively, if you have python 2.6 or above
+	(including python 3), you can use that.  Finally, there is a (separately
+	distributed) compiled version if you don't have python on your system.
+
+2.5.2 Installation Guide                 *TagHighlight-install-guide*       {{{3
+
+	Uninstalling ctags_highlighter:      *TagHighlight-remove-old*          {{{4
+
+		This plugin replaces the previous version, which was called
+		ctags_highlighter.  Please delete ctags_highlighter before using this
+		plugin.  The files you need to delete (if present) in your ~/.vim or
+		vimfiles directory are:
+
+		* mktypes.py
+		* extra_source/mktypes (delete the entire folder)
+		* doc/ctags_highlighting.txt
+		* plugin/ctags_highlighting.vim
+		* types_qt4.vim (if you installed the GUI types addon)
+		* types_wx.vim (if you installed the GUI types addon)
+		* types_wxpy.vim (if you installed the GUI types addon)
+		* types_android.vim (if you installed the GUI types addon)
+		* types_jdk.vim (if you installed the GUI types addon)
+	
+	Installing the main plugin:          *TagHighlight-install-main*        {{{4
+
+		The TagHighlight plugin is distributed as a zip file.  If you are
+		using the pathogen plugin, create a directory called TagHighlight in
+		~/.vim/bundle or vimfiles/bundle.  Unzip the zip file directly into
+		the new directory.  If you are not using the pathogen plugin, simply
+		unzip the zip file directly into your ~/.vim or vimfiles directory.
+
+		For details of the pathogen plugin, see:
+>
+			https://github.com/tpope/vim-pathogen
+<
+	Updating the help tags:              *TagHighlight-update-helptags*     {{{4
+
+		If you use pathogen, run:
+>
+			:call pathogen#helptags()
+<
+		Otherwise, use:
+>
+			:helptags ~/.vim/doc
+<
+		or:
+>
+			:helptags path/to/vimfiles/doc
+<
+		as appropriate.
+	
+	Installing the compiled version:     *TagHighlight-install-compiled*    {{{4
+
+		If you want to use the compiled version of the plugin (if you do not
+		have python on your system), download the zip file for your chosen
+		platform (or both Windows and Linux if you use the same vim
+		configuration directory on both platforms) and unzip in the same
+		location as the main plugin (~/.vim or ~/.vim/bundle/TagHighlight
+		depending on whether you use pathogen).
+
+	Installing the standard libraries:   *TagHighlight-install-stdlib*      {{{4
+
+		If you want support for highlighting of standard libraries (see
+		|TagHighlight-standard-libraries|), unzip that zip file in the same
+		place as the main plugin (~/.vim or ~/.vim/bundle/TagHighlight
+		depending on whether you use pathogen).
+
+	Uninstalling:                        *TagHighlight-uninstall*           {{{4
+
+		If you use pathogen and have followed the pathogen install
+		instructions above, you should be able to simply delete
+		~/.vim/bundle/TagHighlight.
+
+		If you don't use pathogen, the files/directories to delete (all
+		relative to ~/.vim or vimfiles) are:
+
+		* plugin/TagHighlight.vim
+		* plugin/TagHighlight (entire directory)
+		* autoload/TagHighlight (entire directory)
+		* doc/TagHighlight.txt
+
+==============================================================================
+3. Standard Libraries                    *TagHighlight-standard-libraries*  {{{1
+
+3.1 Introduction                         *TagHighlight-stdlib-intro*        {{{2
+
+	|TagHighlight| supports two different methods for loading in tag definitions
+	for highlighting of tags that are defined outside of the main source code.
+
+	For libraries that are specific to your project and not likely to be used
+	widely, User Libraries can be defined.  For these, types highlighter files
+	are generated for the library and then the project configuration links
+	directly to those library files.  For more information on user libraries,
+	see |TagHL-UserLibraries|.
+
+	For libraries that are common across a lot of projects (and probably a lot
+	of people), standard libraries can be defined.  A number of these standard
+	libraries are available on the |TagHighlight-website|.  For installation
+	instructions, see |TagHighlight-install-stdlib|.  At the time of writing,
+	the available standard libraries are:
+
+	* "Android SDK": Android Software Development Kit (Java)
+	* "JDK": Java Development Kit (Java)
+	* "PySide": PySide framework (Python; limited support)
+	* "Qt4": Qt4 (C++)
+	* "wxpython": wxPython (Python; limited support)
+	* "wxWidgets": wxWidgets (C++)
+	
+	If a source file is opened that looks like it might be part of one of
+	these libraries, the standard library highlighter is automatically loaded.
+	Forcing loading of a particular library can be achieved using the option
+	|TagHL-ForcedStandardLibraries| (the library names are the bits in double
+	quotes in the list above).  Disabling standard library parsing can be
+	achieved either by deleting the standard libraries (or not installing them
+	in the first place), or by setting |TagHL-DisableStandardLibraries| to
+	True or 1.
+
+------------------------------------------------------------------------------
+
+3.2 Adding More Standard Libraries       *TagHighlight-adding-libraries*    {{{2
+
+	Standard libraries are stored in the standard_libraries subdirectory of
+	the main plugin area (plugin/TagHighlight).  Each standard library is held
+	in its own subdirectory (the name is not important).  In that directory
+	there should be a types highlighter file generated from the standard
+	library: again the name is not important, but it shouldn't end with .vim
+	as otherwise it will be automatically sourced by Vim on startup!).  As an
+	example, the Android SDK highlighter file is called android_sdk.taghl.  In
+	addition, there should be a file called library_types.txt giving the
+	details of that library.
+
+	The format of library_types.txt is similar to that of the project
+	configuration file (see |taghl_config.txt|) and all txt files used by
+	TagHighlight.  The required fields are as follows:
+
+		LibraryName - The "friendly" name of the library, e.g. Android SDK
+
+		TypesFiles - A comma-separated list of types highlighter files to load
+		             (usually only one).
+
+		TypesSuffixes - Language suffixes to which this highlighter applies.
+
+		CheckMode - One of the following methods for determining if a source
+		            file should load this standard library:
+
+			* Always - This standard library will be loaded for all files of
+			           the correct language (where TypesSuffixes matches).
+
+			* MatchStart - Search for any one of a set of regular expressions
+			               (set with MatchREs) in the first MatchLines lines
+			               (default 30) in the file.
+
+			* MatchEnd - Like MatchStart, but look in the last MatchLines lines
+			               in the file.
+
+			* Custom - Call a custom function (name provided in
+			           CustomFunction) with the suffix as a parameter.  If it
+			           returns 'Load', load the library; if it returns 'Skip',
+			           do not load the library.  Any other return value is an
+			           error.
+	
+	Other options that may be required depending on the CheckMode:
+
+		MatchREs - list of Vim regular expressions to compare against the
+		           first (if using MatchStart) or last (if using MatchEnd)
+		           MatchLines lines in the file.  Required for MatchStart or
+		           MatchEnd.
+
+		MatchLines - If using MatchStart or MatchEnd, the number of lines to
+		             scan when trying to match the regular expressions.  If
+		             not provided, defaults to 30.
+
+		CustomFunction - The name of the function used in the Custom
+		                 CheckMode.  Required if using Custom.
+
+	See the existing standard libraries for examples.
+
+==============================================================================
+4. TagHighlight Customisation            *TagHighlight-custom*              {{{1
+
+4.1 Adding More Languages                *TagHighlight-adding*              {{{2
+
+	1. Run ctags --list-languages and check that the required language is
+	   present.
+	   
+	2. If you're using a custom version of ctags highlighter with extra
+	   languages, you may need to add the details to the kind list in
+	   plugin/TagHighlight/data/kinds.txt (for most standard languages, this
+	   won't be necessary).  To do this, run:
+>
+			ctags --list-kinds=all
+<
+	   and examine the entries for your language.
+
+	3. Create a new file in plugin/TagHighlight/data/languages/ with a .txt
+	   extension (the file name can be anything you want).  Set the fileformat
+	   to be 'unix' for consistency and don't expand tabs in case you need to
+	   add any multi-line lists:
+>
+			set ff=unix noet
+<
+	4. In that file, add the following fields in Key:Value format (one per
+	   line):
+
+		FriendlyName - Whatever you prefer to call the language.
+
+		CTagsName - Whatever ctags refers to the language as.
+
+		PythonExtensionMatcher - A python regular expression that matches
+					 the extensions of files that are written
+					 in this language.
+
+		VimExtensionMatcher - The Vim regular expression version of
+				  PythonExtensionMatcher.
+
+		Suffix - Whatever you would like the generated files to be named,
+			 e.g. for C code, the suffix is c and the generated files
+			 are by default called types_c.taghl.
+
+	5. Optionally, add other fields as required:
+
+		SkipList - Any specific ctags "kinds" (single characters referring
+			       to types of tags) that you want to omit from the types
+			       file.  For example, for C code, function prototypes are
+			       omitted (function definitions are included) by setting
+			       SkipList to p.  To include multiple items, separate
+			       each item with a comma.  To see a list of kinds for a
+			       language, use:
+>
+						ctags --list-kinds
+<
+		SpecialSyntaxHandlers - This is for unusual cases where particular
+					            syntax commands are required for a given
+					            language.  Add any functions you want to
+					            call here.  As an example, for Java code,
+					            all syntax items must be added to the
+					            javaTop cluster; this is done in a special
+					            syntax handler.  For most languages this
+					            is unnecessary.
+
+		Priority - Where a tag name is used for multiple different types (e.g.
+		           as a defined name and as a typedef), it can only be
+		           highlighted as one or the other (Vim is not aware of the
+		           context of the keyword).  The priority defines whether it
+		           should (in this case) be highlighted as a defined name or
+		           as a typedef.  The default priority order is shown in
+		           plugin/TagHighlight/data/language_defaults.txt.  Entries
+		           not included in the priority list are treated in
+		           alphabetical order after the ones that are in the priority
+				   list.  If the default priority is not appropriate for the
+				   new language, it can be overridden in the language
+				   definition.
+
+		IsKeyword - Most source files have Vim's |'iskeyword'| option set to
+		            @,48-57,_,192-255.  If that is incorrect for the language
+					that you are defining, it can be changed in the new
+					language definition.  Generally not really required.
+
+	6. Add a modeline for consistency:
+>
+		# vim: ff=unix:noet
+<
+	7. Test your new language!
+
+	8. Send me a copy for inclusion in the main distribution.
+
+4.1.1 Example                            *TagHighlight-add-example*         {{{3
+
+	It is worth looking at the existing language files for examples.  The C#
+	language file is called csharp.txt and looks like this:
+>
+		FriendlyName:c#
+		CTagsName:c#
+		PythonExtensionMatcher:cs
+		VimExtensionMatcher:cs
+		Suffix:cs
+
+		# vim: ff=unix:noet
+<
+	The friendly name and CTagsName are both 'c#' (it is quite normal for
+	these to be the same).  Only one file extension is supported (cs), so the
+	extension matchers are trivial.  The selected suffix is cs (this is the
+	bit that goes in the filename).
+
+	It really is that easy!
+
+==============================================================================
+5. Troubleshooting                       *TagHighlight-troubleshooting*     {{{1
+
+	A debugging log can be generated by running the command:
+>
+		:UpdateTypesFileDebug /path/to/debug_log.txt
+<
+	This will generate tags (recursively), create a types highlighter file and
+	try to read the relevant types highlighter files for all open files.  All
+	debugging information will be written to /path/to/debug_log.txt.
+
+	If you're having difficulties getting TagHighlight to work, please try
+	running the above command and send a brief description of the symptoms
+	along with a copy of the debug log to me at abudden _AT_ gmail _DOT_ com.
+	I'll do my best to help you get it working as quickly as I can.
+
+	If you're having problems that are specific to the |:UpdateTypesFileOnly|
+	command, please use the following commands, which work in much the same
+	way as the commands above:
+>
+		:let g:TagHighlightSettings['DebugLevel'] = 'Information'
+		:let g:TagHighlightSettings['DebugFile'] = '/path/to/typesonly.log'
+		:UpdateTypesFileOnly
+<
+
+==============================================================================
+6. TagHighlight History                *TagHighlight-history*               {{{1
+
+2.1.0:  22nd August 2011   : First public release of TagHighlight.  Many
+                             thanks to Aleksey Baibarin, Marcus Martin,
+							 Mishail, Prasun Ratn and Yongwei Wu for the help
+							 with testing the various pre-release versions of
+							 this plugin.
+
+2.0.24: 12th August 2011   : Release script improvements to include packaging
+                             of standard libraries.
+
+2.0.23: 12th August 2011   : Improvements to variable passing when options
+                             have been set to 'True' rather than 1.
+
+2.0.22: 11th August 2011   : Website link update.  Comments on troubleshooting
+                             issues with UpdateTypesFileOnly.  Fix for check
+                             for existence of tag file (not looking in the
+                             correct directory).
+
+2.0.21: 10th August 2011   : Additional debug.
+
+2.0.20: 9th August 2011    : Further improvements to build script.
+
+2.0.19: 9th August 2011    : Minor tweaks to build script.
+
+2.0.18: 9th August 2011    : Preparation for publishing code on github.
+
+2.0.17: 9th August 2011    : (Internal change).  Separated TagHighlight
+                             version control from vimfiles bzr repository into
+                             separate git repository.  Revision number no
+                             longer meaningful.
+
+2.0.16: 8th August 2011    : Wildcard matches are for files only, not
+                             directories (work-around for issue with tags file
+                             having same name as svn tags directory).  Extra
+                             debug regarding working directory etc.
+                             Simplified commands by moving functionality into
+                             a new function.  REMOVED non-recursive command!
+
+2.0.15: 5th August 2011    : Debug output improvements.
+
+2.0.14: 5th August 2011    : Bug fix for selection of source directory.  If
+                             one of the explicit locations was set to 'None',
+                             it was using 'None' as the source dir location.
+                             Added version information printing to debug
+                             output.
+
+2.0.13: 4th August 2011    : Improvements to directory searching (mainly for
+                             Cygwin).  Addition of option to include timestamp
+                             in debug log (Vim debug output only at present).
+
+2.0.12: 3rd August 2011    : Added option to limit number of directories to
+							 search up through when looking for configuration
+							 or existing tags file.
+
+2.0.11: 2nd August 2011    : Added some example configurations to the
+                             documentation.
+
+2.0.10: 2nd August 2011    : Added extensive debug stuff.
+
+2.0.9: 30th July 2011      : Attempt to work around python bug 3905 (issue
+                             with subprocess when called from GUI
+                             application).
+
+2.0.8: 30th July 2011      : Fixed erroneous function call.
+
+2.0.7: 30th July 2011      : Bug fix for exception handling.
+
+2.0.6: 29th July 2011      : Included description of defaults in
+                             documentation.  Improved python version checking:
+                             don't use python if version is < 2.6 or cannot
+                             import print_function.
+
+2.0.5: 28th July 2011      : Bug fix in Java special handler.  Added
+                             description of how to add languages not supported
+                             by standard ctags.
+
+2.0.4: 27th July 2011      : Fixed bug in python interface (old variable
+                             name); renamed ctags interface python code to
+                             avoid potential issues with other plugins
+                             thinking that ctags.py is actually ctags.
+                             Further improvements to handling paths with
+                             spaces.
+
+2.0.3: 26th July 2011      : Added missing documentation to zip file!
+
+2.0.2: 26th July 2011      : Improved Linux compiled version support.
+
+2.0.1: 25th July 2011      : Added provisional support for a Linux compiled
+                             version.
+
+2.0.0: 25th July 2011      : Significant refactor of all the code.  Reworked
+							 the way options are set (can now be set globally,
+							 per buffer or in a project configuration file).
+							 All options now moved into dictionaries to
+							 minimise the number of variables created by the
+							 plugin.  Moved most of the functionality into
+							 autoload to simplify operation.  Added support
+							 for using the python interface (either 2.6+ or
+							 3.0+), or using a system python (either 2.6+ or
+							 3.0+) or using a compiled version on either
+							 Windows.  Improved library implementation to
+							 improve loading method and ease generation of
+							 standard libraries.  Added support for user
+							 libraries.  Improved language handlers (now
+							 configured from a single text file).  Renamed
+							 project from ctags_highlighter to TagHighlight.
+							 New revision numbering scheme.  Changed default
+							 types file extension.  Allow complete
+							 customisation of location and name of types and
+							 tags files.  Allow specific keywords to be
+							 skipped when generating types files.  Added
+							 support for pre-read, post-read, pre-update and
+							 post-update hooks to allow further customisation.
+
+r461 : 6th May 2011        : Allow explicit setting of ctags executable
+							 name.  Added troubleshooting section to the
+							 manual.
+
+r458 : 7th March 2011      : Inclusion of vim keywords (display, contained
+							 etc) controlled by separate option.
+
+r456 : 6th March 2011      : Fixed accidental file-type change.
+
+r452 : 6th March 2011      : Better handling of unknown ctags tag kinds.
+
+r443 : 19th February 2011  : Allow customisation of the filenames used
+							 for tags and types files (thanks to Sung Pae).
+
+r442 : 16th February 2011  : Improved prioritisation of object-oriented
+							 language types (thanks to Aleksey Baibarin).
+
+r440 : 16th February 2011  : More explicit choice of C/C++ file extensions to
+							 avoid conflicts with C# (thanks to Aleksey
+							 Baibarin).
+
+r439 : 10th February 2011  : Kill any cscope connections prior to running 
+							 script in order to prevent cscope from locking
+							 the cscope.out file.
+
+r435 : 11th January 2011   : Changed default to not include syntax matches
+							 unless either g:TypesFileIncludeSynMatches or
+							 b:TypesFileIncludeSynMatches is set to 1 (this
+							 makes the highlighting much faster for large
+							 projects).
+
+r431 : 2nd December 2010   : Add support for local variables in non-C
+							 languages.
+
+r429 : 2nd December 2010   : Improvements to cope with spaces in paths.
+
+r425 : 16th November 2010  : Added support for Java and Android SDKs.
+
+r410 : 9th September 2010  : Improved option configuration implementation.
+
+r409 : 9th September 2010  : Allow cscope configuration options to be local
+							 rather than buffer specific.
+
+r398 : 29th March 2010     : Added support for python import in the listing.
+
+r396 : 29th March 2010     : Factored out old ctags_[a-z] types to improve
+							 language support.
+
+r394 : 26th March 2010     : Fix for python use.
+
+r391 : 2nd March 2010      : Fix for ctags names.
+
+r390 : 2nd March 2010      : Attempted improvements to code including support
+							 for C# (thanks to Aleksey Baibarin).
+
+r387 : 20th February 2010  : Fixed VIMFILESDIR typo.
+
+r384 : 19th February 2010  : Improvements to VIMFILESDIR identification.
+							 Re-architecture of type definitions to make
+							 them more sensitive to different ctags "kinds"
+							 for different languages.  Note that Enumerator
+							 has been renamed to EnumerationValue: the latest
+							 Bandit Colour Scheme supports this.
+
+r382 : 13th February 2010  : Fixed escaping of paths and operation of
+							 ReadTypes when not in an autocommand.
+
+r340 : 2nd November 2009   : Added missing winrestview().
+
+r330 : 16th September 2009 : Minor Documentation update.
+
+r329 : 16th September 2009 : Added revision output to mktypes.
+
+r328 : 16th September 2009 : Fix for bug with path finding on Windows where
+							 directories in the path end in a backslash.
+
+r326 : 15th September 2009 : Added revision number to debug output.
+
+r324 : 14th September 2009 : Fixed Linux bugs with new implementation.
+
+r321 : 14th September 2009 : Fixed bug with returning to the correct window
+							 after use, added debugging statements and moved
+							 executable search to a separate function.  Also
+							 added preliminary work towards more explicit
+							 type names.
+
+r309 : 17th August 2009    : Added documentation.
+
+r302 : 10th August 2009    : Added experimental PHP support.
+
+r301 : 7th August 2009     : Made GUI tags and types files optional and added
+							 shellescape to protect paths (thanks to Mikhail
+							 Stepura again). The gui_tags_and_types.vba file
+							 contains the tags and highlighting definitions
+							 for Qt, wxWidgets and wxPython (used to be
+							 included in the main distribution).
+
+r292 : 3rd August 2009     : Fixed bug with cscope option.
+
+r285 : 27th July 2009      : Added support for ctags being stored in a path
+							 with spaces and other odd characters (thanks to
+							 Mikhail Stepura).
+
+r261 : 23rd May 2009       : Changed some of the defaults to the python script
+							 (so fewer options need to be passed by
+							 UpdateTypesFile).  It should now be possible to
+							 generate the types file simply by running
+							 "mktypes.py" or "mktypes.py -r" in the project
+							 directory.  Of course, UpdateTypesFile works too.
+							 Added UpdateTypesFileOnly command for projects in
+							 which the tags file is updated externally (e.g.
+							 the Linux kernel source).  Removed regular
+							 expression matches by default: this is much
+							 quicker for large projects.
+
+r252 : 21st May 2009       : Added (optional) support for highlighting of
+							 local variables (not scope-specific: just
+							 recognises names).  Tidied up tag generation.
+
+r173 : 17th November 2008  : Added automatic reloading of types file whenever
+							 :UpdateTypesFile is run.  Also runs cscope (in
+							 the background) if cscope.files is present in the
+							 current working directory.
+
+r132 : 17th September 2008 : Updated to support limiting the languages checked
+							 for (intended to be used with the project plugin
+							 and it's in= option) in order to speed it up a
+							 bit. Also added project option for recursion (so
+							 you don't have to bother with the exclamation
+							 mark) and parsing of local enumerations.
+							 Finally, added sorting of tags file such that
+							 function implementations come before function
+							 declarations, regardless of the alphabetic order
+							 of the file names in which they are stored.
+							 Finally, added zipfile version in case of
+							 problems with vba.
+
+r129 : 9th September 2008  : Updated to only add to the various rainbow.vim
+							 related groups if b:hlrainbow is set.
+
+r126 : 5th September 2008  : This has now been updated to run considerably
+							 quicker (with only one pass by ctags and
+							 excluding directories named "docs" to avoid
+							 spending a long time searching through all the
+							 files that doxygen creates).  On the project I
+							 used to benchmark it, the running time reduced
+							 from about two minutes to about seven seconds!
+
+==============================================================================
+Modelines: {{{1
+ vim:tw=78:ts=4:ft=help:fdm=marker:

@@ -1,0 +1,334 @@
+#####################
+# Vim-only options: #
+#####################
+
+disable_type_parsing:
+	VimOptionMap:DisableTypeParsing
+	Type:bool
+	Default:False
+	Help:Do not read types when opening a file
+
+parsing_skip_list:
+	VimOptionMap:ParsingSkipList
+	Type:list
+	Default:[]
+	Help:List of files for which the type reading should be disabled
+
+def_dir_mode_priority:
+	VimOptionMap:DefaultDirModePriority
+	Type:list
+	Default:[]
+	Help:List of methods (in order) to use when searching for tags/types etc
+	Note:Default is overridden in TagHighlight#Option#GetOption()
+
+max_dir_search_levels:
+	VimOptionMap:MaxDirSearchLevels
+	Type:int
+	Default:0
+	Help:How far up to search in UpFromFile or UpFromCurrent mode
+
+config_file_name:
+	VimOptionMap:ProjectConfigFileName
+	Type:string
+	Default:taghl_config.txt
+	Help:File name for project specific configuration items
+
+tag_dir_mode_priority:
+	VimOptionMap:TagFileDirModePriority
+	Type:list
+	Default:Default
+	Help:Optional override for dir mode priority for tag files specifically
+
+types_dir_mode_priority:
+	VimOptionMap:TypesFileDirModePriority
+	Type:list
+	Default:Default
+	Help:Optional override for dir mode priority for types files specifically
+
+config_dir_mode_priority:
+	VimOptionMap:ProjectConfigFileDirModePriority
+	Type:list
+	Default:Default
+	Help:Optional override for dir mode priority for project config files specifically
+
+tag_file_directory:
+	VimOptionMap:TagFileDirectory
+	Type:string
+	Default:None
+	Help:Explicitly specified location for tag file (corresponding to Explicit search mode)
+
+types_file_directory:
+	VimOptionMap:TypesFileDirectory
+	Type:string
+	Default:None
+	Help:Explicitly specified location for types file (corresponding to Explicit search mode)
+
+config_file_directory:
+	VimOptionMap:ProjectConfigFileDirectory
+	Type:string
+	Default:None
+	Help:Explicitly specified location for project config file (corresponding to Explicit search mode)
+
+default_dir_mode_search_wildcards:
+	VimOptionMap:DefaultDirModeSearchWildcards
+	Type:list
+	Default:OPT(TagFileName),OPT(ProjectConfigFileName)
+	Help:When searching directories, wildcards to match against (if any matches, we'll use this directory)
+
+config_dir_mode_search_wildcards:
+	VimOptionMap:ProjectConfigFileSearchWildcards
+	Type:list
+	Default:Default
+	Help:When searching directories for project config files, wildcards to match against (if any matches, we'll use this directory)
+
+tag_dir_mode_search_wildcards:
+	VimOptionMap:TagFileSearchWildcards
+	Type:list
+	Default:Default
+	Help:When searching directories for tag files, wildcards to match against (if any matches, we'll use this directory)
+
+types_dir_mode_search_wildcards:
+	VimOptionMap:TypesFileSearchWildcards
+	Type:list
+	Default:Default
+	Help:When searching directories for types files, wildcards to match against (if any matches, we'll use this directory)
+
+ctags_executable:
+	VimOptionMap:CtagsExecutable
+	Type:string
+	Default:None
+	Help:Name of the ctags executable, or full path to it
+
+forced_python_variant:
+	VimOptionMap:ForcedPythonVariant
+	Type:string
+	Default:None
+	Help:Force the use of a specific variant (see help for PythonVariantPriority)
+
+python_variant_priority:
+	VimOptionMap:PythonVariantPriority
+	Type:list
+	Default:if_pyth3,if_pyth,python,compiled
+	Help:Search order for deciding which variant to use
+
+path_to_python:
+	VimOptionMap:PathToPython
+	Type:string
+	Default:None
+	Help:Location of the python executable or None to search the path
+
+pre_read_hooks:
+	VimOptionMap:PreReadHooks
+	Type:list
+	Default:[]
+	Help:List of function names to run before reading types.
+
+post_read_hooks:
+	VimOptionMap:PostReadHooks
+	Type:list
+	Default:[]
+	Help:List of function names to run after reading types.
+
+pre_update_hooks:
+	VimOptionMap:PreUpdateHooks
+	Type:list
+	Default:[]
+	Help:List of function names to run before updating types.
+
+post_update_hooks:
+	VimOptionMap:PostUpdateHooks
+	Type:list
+	Default:[]
+	Help:List of function names to run after updating types.
+
+hooks:
+	VimOptionMap:Hooks
+	Type:dict
+	Default:{'PreUpdate': [], 'PostUpdate': [], 'PreRead': [], 'PostRead': []}
+	Help:Hooks dictionary (each entry is a list of strings containing functions to call; read functions take current file name and types suffix as parameters).
+
+forced_standard_libraries:
+	VimOptionMap:ForcedStandardLibraries
+	Type:list
+	Default:[]
+	Help:List of standard libraries which we should load regardless of whether the matchers match (as long as suffix is correct).
+
+disable_standard_libraries:
+	VimOptionMap:DisableStandardLibraries
+	Type:bool
+	Default:False
+	Help:Don't try to load standard libraries.
+
+user_libraries:
+	VimOptionMap:UserLibraries
+	Type:list
+	Default:[]
+	Help:List of user libraries to load (either relative to UserLibraryDir or absolute).
+
+user_library_dir:
+	VimOptionMap:UserLibraryDir
+	Type:string
+	Default:.
+	Help:Location of user libraries that are specified with relative paths.
+
+##########################
+# Python script options: #
+##########################
+
+debug_level:
+	CommandLineSwitches:--debug
+	VimOptionMap:DebugLevel
+	Type:string
+	Default:Error
+	Help:Debug level for printing (how much debug output to produce)
+
+debug_file:
+	CommandLineSwitches:--debug-file
+	VimOptionMap:DebugFile
+	Type:string
+	Default:None
+	Help:Debug log file into which messages should be stored
+
+debug_print_time:
+	CommandLineSwitches:--print-time-with-debug
+	VimOptionMap:DebugPrintTime
+	Type:bool
+	Default:False
+	Help:Print the time with each debug message in the log
+
+source_root:
+	CommandLineSwitches:-d,--source-root
+	VimOptionMap:SourceDir
+	Type:string
+	Default:None
+	Help:Location of source files to scan
+
+recurse:
+	CommandLineSwitches:--no-recurse
+	VimOptionMap:Recurse
+	Type:bool
+	Default:True
+	Help:Recurse into subdirectories
+ 
+ctags_file:
+	CommandLineSwitches:--ctags-file
+	VimOptionMap:TagFileName
+	Type:string
+	Default:tags
+	Help:CTAGS output filename
+
+ctags_file_dir:
+	CommandLineSwitches:--ctags-file-dir
+	VimOptionMap:CtagsFileLocation
+	Type:string
+	Default:.
+	Help:Location in which to store or find CTAGS output file
+
+types_file_name_override:
+	CommandLineSwitches:--types-file-name-override
+	VimOptionMap:TypesFileNameForce
+	Type:string
+	Default:None
+	Help:Force types filename to be a specific string (as opposed to prefix + _ + suffix + . + extension).
+
+types_file_prefix:
+	CommandLineSwitches:--types-file-prefix
+	VimOptionMap:TypesFilePrefix
+	Type:string
+	Default:types
+	Help:Vim Types file prefix
+
+types_file_extension:
+	CommandLineSwitches:--types-file-extension
+	VimOptionMap:TypesFileExtension
+	Type:string
+	Default:taghl
+	Help:Extension for types file (by default 'taghl', which with default prefix gives types_c.taghl for C files).
+
+skip_patterns:
+	CommandLineSwitches:--add-skip-pattern
+	VimOptionMap:SkipPatterns
+	Type:list
+	Default:[]
+	Help:List of (Python) regular expressions to match against keywords which should be excluded from the types file.
+ 
+ctags_exe_full:
+	CommandLineSwitches:--ctags-exe-full-path
+	VimOptionMap:CtagsExeFull
+	Type:string
+	Default:ctags
+	Help:CTAGS Executable Directory
+ 
+include_docs:
+	CommandLineSwitches:--include-docs
+	Type:bool
+	Default:False
+	Help:Include docs or Documentation directory (stripped by default for speed)
+ 
+check_keywords:
+	CommandLineSwitches:--do-not-check-keywords
+	Type:bool
+	Default:True
+	Help:Do not check validity of keywords (for speed)
+ 
+include_matches:
+	CommandLineSwitches:--include-invalid-keywords-as-matches
+	VimOptionMap:IncludeSynMatches
+	Type:bool
+	Default:False
+	Help:Include invalid keywords as regular expression matches (may slow it loading)
+ 
+skip_vimkeywords:
+	CommandLineSwitches:--exclude-vim-keywords
+	VimOptionMap:SkipVimKeywords
+	Type:bool
+	Default:False
+	Help:Don't include Vim keywords (they have to be matched with regular expression matches, which is slower)
+ 
+parse_constants:
+	CommandLineSwitches:--do-not-analyse-constants
+	Type:bool
+	Default:True
+	Help:Do not treat constants as separate entries
+ 
+languages:
+	CommandLineSwitches:--include-language
+	VimOptionMap:Languages
+	Type:list
+	Default:[]
+	Help:Only include specified languages
+ 
+types_file_location:
+	CommandLineSwitches:--types-file-location
+	VimOptionMap:TypesFileLocation
+	Type:string
+	Default:.
+	Help:Specify the location for the generated types files
+ 
+include_locals:
+	CommandLineSwitches:--include-locals
+	VimOptionMap:IncludeLocals
+	Type:bool
+	Default:False
+	Help:Include local variables in the database
+ 
+use_existing_tagfile:
+	CommandLineSwitches:--use-existing-tagfile
+	VimOptionMap:DoNotGenerateTags
+	Type:bool
+	Default:False
+	Help:Do not generate tags if a tag file already exists
+ 
+print_py_version:
+	CommandLineSwitches:--pyversion
+	Type:bool
+	Default:False
+	Help:Just print the version of python
+
+print_config:
+	CommandLineSwitches:--print-config
+	Type:bool
+	Default:False
+	Help:Parse the various options and then print the configuration and exit (for debugging)
+
+# vim: ff=unix:noet

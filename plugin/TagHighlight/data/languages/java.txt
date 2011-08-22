@@ -1,0 +1,8 @@
+FriendlyName:java
+CTagsName:java
+PythonExtensionMatcher:java
+VimExtensionMatcher:java
+Suffix:java
+SpecialSyntaxHandlers:TagHighlight#SpecialHandlers#JavaTopHandler
+
+# vim: ff=unix:noet

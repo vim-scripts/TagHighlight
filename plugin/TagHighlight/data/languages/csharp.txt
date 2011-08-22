@@ -1,0 +1,7 @@
+FriendlyName:c#
+CTagsName:c#
+PythonExtensionMatcher:cs
+VimExtensionMatcher:cs
+Suffix:cs
+
+# vim: ff=unix:noet

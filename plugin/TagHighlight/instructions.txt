@@ -1,0 +1,6 @@
+To make the Windows executable, set up pyinstaller (1.5 rc1 or later) and
+run:
+
+    python /path/to/pyinstaller/Build.py TagHighlight.spec
+
+from this directory.

@@ -1,0 +1,35 @@
+# Defaults for languages.  Entries in this and the language specific files are
+# either in the format:
+# 
+# Name:Value
+# 
+# where value is a string read literally, or in the format:
+#
+# Name:
+#	Value1
+#	Value2
+#	Value3
+#
+# where ValueN are a list of values read into a list and the character
+# preceding the values is a hard tab character
+
+# Priority order: highest first
+Priority:
+	CTagsNamespace
+	CTagsClass
+	CTagsDefinedName
+	CTagsType
+	CTagsMethod
+	CTagsFunction
+	CTagsEnumerationValue
+	CTagsEnumeratorName
+	CTagsConstant
+	CTagsGlobalVariable
+	CTagsUnion
+	CTagsProperty
+	CTagsMember
+	CTagsStructure
+SkipList:
+IsKeyword:@,48-57,_,192-255
+
+# vim: ff=unix:noet

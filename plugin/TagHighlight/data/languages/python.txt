@@ -1,0 +1,7 @@
+FriendlyName:python
+CTagsName:python
+PythonExtensionMatcher:pyw?
+VimExtensionMatcher:pyw\?
+Suffix:py
+
+# vim: ff=unix:noet

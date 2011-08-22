@@ -1,21 +1,25 @@
 This is a mirror of http://www.vim.org/scripts/script.php?script_id=2646
 
-This set of scripts is designed to increase the number of highlighting groups used by Vim.  This makes it quicker and easier to spot errors in your code.  By using ctags and parsing the output, the typedefs, #defines, enumerated names etc are all clearly highlighted in different colours.
+TagHighlight is a plugin that highlights names of classes, variables, types etc in source code in Vim.  This makes it quicker and easier to spot errors in your code.  By using exuberant ctags and parsing the output, the typedefs, #defines, enumerated names etc are all clearly highlighted in different colours.  As standard, it supports the following languages (but it's very easy to add more):
 
-The idea was based on the comments in :help tag-highlight, but I wanted to take it a little further.
+* C/C++ (most of the testing has been with these)
+* C#
+* Java
+* Matlab (if your version of ctags supports it)
+* Perl
+* PHP
+* Python
+* Ruby
+* VHDL (if your version of ctags supports it)
 
-This is achieved through a little python script to interact with ctags and to parse the result and a small Vim script that makes Vim read the resulting files.  Finally, a new command (:UpdateTypesFile) is added (with optional ! for recursive operation) to keep the generated files up to date.
-
-At present, the highlighter supports the following languages:
-C/C++
-Java
-Perl
-PHP (experimental)
-Python
-Ruby (largely untested)
-VHDL
 Adding more languages is extremely simple.
 
 To show the benefit of this plugin, there are some screenshots and a more detailed description at the following website:
 
-http://sites.google.com/site/abudden/contents/Vim-Scripts/ctags-highlighting
+http://www.cgtk.co.uk/taghighlight
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+This version replaces the previous "CTAGS Highlighting" script and it is necessary to uninstall that plugin in order to upgrade to the new version.  Detailed instructions are on the website or in the enclosed documentation.
+
+The source is now maintained on github: https://github.com/abudden/TagHighlight

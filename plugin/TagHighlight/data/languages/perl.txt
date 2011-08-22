@@ -1,0 +1,7 @@
+FriendlyName:perl
+CTagsName:perl
+PythonExtensionMatcher:p[lm]
+VimExtensionMatcher:p[lm]
+Suffix:pl
+
+# vim: ff=unix:noet
