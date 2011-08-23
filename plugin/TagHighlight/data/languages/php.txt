@@ -3,5 +3,7 @@ CTagsName:php
 PythonExtensionMatcher:php
 VimExtensionMatcher:php
 Suffix:php
+VimFileTypes:php
+VimSyntaxes:php
 
 # vim: ff=unix:noet

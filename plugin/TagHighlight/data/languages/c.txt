@@ -2,6 +2,8 @@ FriendlyName:c
 CTagsName:c
 PythonExtensionMatcher:(c|cc|cpp|h|hpp|cxx|hxx)
 VimExtensionMatcher:\(c\|cc\|cpp\|h\|hpp\|cxx\|hxx\)
+VimSyntaxes:c,cpp
+VimFileTypes:c,cpp
 Suffix:c
 SkipList:p
 SpecialSyntaxHandlers:TagHighlight#SpecialHandlers#CRainbowHandler

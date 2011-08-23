@@ -4,5 +4,7 @@ PythonExtensionMatcher:java
 VimExtensionMatcher:java
 Suffix:java
 SpecialSyntaxHandlers:TagHighlight#SpecialHandlers#JavaTopHandler
+VimSyntaxes:java
+VimFileTypes:java
 
 # vim: ff=unix:noet

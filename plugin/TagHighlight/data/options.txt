@@ -2,6 +2,12 @@
 # Vim-only options: #
 #####################
 
+language_detection_method:
+	VimOptionMap:LanguageDetectionMethods
+	Type:list
+	Default:Extension
+	Help:Specify methods to use for determining language for the file when reading highlight definitions.
+
 disable_type_parsing:
 	VimOptionMap:DisableTypeParsing
 	Type:bool

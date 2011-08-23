@@ -160,7 +160,7 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 	highlight groups should be defined (others may be needed for different
 	languages):
 
-		ClassName       : Class
+		Class           : Class
 		DefinedName     : Define
 		Enumerator      : Enumerator
 		Function        : Function or method
@@ -172,6 +172,16 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 		GlobalConstant  : Global Constant
 		GlobalVariable  : Global Variable
 		LocalVariable   : Local Variable
+	
+	To see the full list of supported groups for a given language, open up
+	plugin/TagHighlight/data/kinds.txt and find your language.  The bit after
+	CTags is the name of the highlight group.  For example, for C++, there is
+	the entry:
+>
+		d:CTagsDefinedName
+<
+	so for this language, the highlight group 'DefinedName' can be used to
+	highlight defined names.
 
 	An example of how to highlight one of these would be to include the
 	following line in your colour scheme (see |:highlight|):
@@ -181,10 +191,11 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 	You can, of course, also link the groups to another highlighting group
 	using something like:
 >
-		hi link Type Keyword
+		hi link Type Comment
 <
-	However, this loses a lot of the advantages of having the tag highlighter
-	in the first place - being able to distinguish between different types!
+	All groups are linked to the 'Keyword' type by default.  However, this
+	loses a lot of the advantages of having the tag highlighter in the first
+	place - being able to distinguish between different types!
 
 ------------------------------------------------------------------------------
 
@@ -384,6 +395,11 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 		SourceDir                        Link:|TagHL-SourceDir|
 		   Explicit location of the source code that you want to scan.
+
+	When to read the generated types file
+
+		LanguageDetectionMethods         Link:|TagHL-LanguageDetectionMethods|
+			How to identify programming language and which |autocmd|s to run.
 
 	What to include in the generated types file
 
@@ -726,6 +742,35 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 		Option Type: Boolean
 		Default: False
+
+	LanguageDetectionMethods             *TagHL-LanguageDetectionMethods*
+		This option can be used to configure which methods are used for
+		detecting the language of a file in order to read the appropriate
+		highlight definition file.  There are three methods that are
+		available:
+
+			Extension: Look at the extension of the current file and check
+					   for matches with the VimExtensionMatcher in the
+					   language definition files.
+
+			Syntax: Look at syntax that has been selected by Vim and check for
+			        matches with the VimSyntaxes list in the language
+			        definition files.
+
+			FileType: Look at the file type that has been selected by Vim and
+			          check for matches with the VimFileTypes list in the
+			          language definition files.
+
+		When calling the either of the core commands (|:ReadTypes| and
+		|:UpdateTypesFile|), they are checked in the order specified in the
+		option.  In addition, there are |autocommand|s defined that will load
+		the definitions when reading or creating a new file (Extension match),
+		setting the |'syntax'| (Syntax match) or setting the |'filetype'|
+		(FileType match).  In each case, the |autocommand|s do nothing unless
+		the match type is listed in this option.
+
+		Option Type: List
+		Default: ['Extension']
 
 	Languages                            *TagHL-Languages*
 		By default, when |:UpdateTypesFile| is run, any files that ctags
@@ -1259,15 +1304,22 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 		CTagsName - Whatever ctags refers to the language as.
 
 		PythonExtensionMatcher - A python regular expression that matches
-					 the extensions of files that are written
-					 in this language.
+					             the extensions of files that are written
+					             in this language.
 
 		VimExtensionMatcher - The Vim regular expression version of
-				  PythonExtensionMatcher.
+				              PythonExtensionMatcher.
+
+		VimFileTypes - A list of Vim file types (the output of the Vim command
+		               ":set ft?") that are relevant for this language.
+
+		VimSyntaxes - A list of Vim syntax names (the output of the Vim
+		              command ":set syntax?") that are relevant for this
+		              language.
 
 		Suffix - Whatever you would like the generated files to be named,
-			 e.g. for C code, the suffix is c and the generated files
-			 are by default called types_c.taghl.
+			     e.g. for C code, the suffix is c and the generated files
+			     are by default called types_c.taghl.
 
 	5. Optionally, add other fields as required:
 
@@ -1363,6 +1415,16 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 ==============================================================================
 6. TagHighlight History                *TagHighlight-history*               {{{1
+
+2.1.1:  23rd August 2011   : Addition of LanguageDetectionMethods option to
+                             allow loading of types when FileType or Syntax
+                             are set (thanks to Hong Xu for the suggestion).
+                             This also involved addition of syntax and
+							 filetype definitions to all languages.  Prevent
+							 Vim from repeatedly loading autocmds in plugin
+							 development mode.  Don't overwrite Cursor colour
+							 definitions with SQL cursor colouring (thanks
+							 again to Hong Xu for reporting this bug).
 
 2.1.0:  22nd August 2011   : First public release of TagHighlight.  Many
                              thanks to Aleksey Baibarin, Marcus Martin,

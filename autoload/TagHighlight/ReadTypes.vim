@@ -21,20 +21,107 @@ catch
 endtry
 let g:loaded_TagHLReadTypes = 1
 
-function! TagHighlight#ReadTypes#ReadTypesAutoDetect()
-	let extension = expand('%:e')
-	if TagHighlight#Debug#DebugLevelIncludes('Information')
-		call TagHLDebug("Reading types for extension " . extension . " at " . strftime("%Y%m%d-%H%M%S"), "Information")
-	endif
-	for key in keys(g:TagHighlightPrivate['ExtensionLookup'])
-		let regex = '^'.key.'$'
-		if extension =~ regex
-			call TagHighlight#ReadTypes#ReadTypes(g:TagHighlightPrivate['ExtensionLookup'][key])
+let s:all_ft_methods = ['Extension', 'Syntax', 'FileType']
+
+function! TagHighlight#ReadTypes#ReadTypesByOption()
+	let ft_methods = TagHighlight#Option#GetOption('LanguageDetectionMethods')
+	for method in ft_methods
+		if index(s:all_ft_methods, method) == -1
+			echoerr "Invalid detection method: " . method . ": valid values are " .
+						\ string(s:all_ft_methods)
+		endif
+		if eval('TagHighlight#ReadTypes#ReadTypesBy'.method.'()') == 1
+			call TagHLDebug("Success with method " . method, "Information")
+			break
+		else
+			call TagHLDebug("Could not find types with method " . method, "Information")
 		endif
 	endfor
 endfunction
 
-function! TagHighlight#ReadTypes#ReadTypes(suffix)
+function! TagHighlight#ReadTypes#ReadTypesByExtension()
+	if ! s:MethodListed('Extension')
+		call TagHLDebug("Read Types by Extension not specified", "Information")
+		return 0
+	endif
+
+	let file = expand('<afile>')
+	if len(file) == 0
+		let file = expand('%')
+	endif
+	let extension = fnamemodify(file, ':e')
+
+	return s:ReadTypesImplementation('ExtensionLookup', extension, 's:ExtensionCheck')
+endfunction
+
+function! TagHighlight#ReadTypes#ReadTypesBySyntax()
+	if ! s:MethodListed('Syntax')
+		call TagHLDebug("Read Types by Syntax not specified", "Information")
+		return 0
+	endif
+
+	let result = 0
+	let syn = expand('<amatch>')
+	if len(syn) == 0
+		let syn = &syntax
+	endif
+
+	return s:ReadTypesImplementation('SyntaxLookup', syn, 's:InListCheck')
+endfunction
+
+function! TagHighlight#ReadTypes#ReadTypesByFileType()
+	if ! s:MethodListed('FileType')
+		call TagHLDebug("Read Types by FileType not specified", "Information")
+		return 0
+	endif
+
+	let result = 0
+	let ft = expand('<amatch>')
+	if len(ft) == 0
+		let ft = &filetype
+	endif
+
+	return s:ReadTypesImplementation('FileTypeLookup', ft, 's:InListCheck')
+endfunction
+function! s:ExtensionCheck(this, expected)
+	let regex = '^'.a:expected.'$'
+	if a:this =~ regex
+		return 1
+	endif
+	return 0
+endfunction
+
+function! s:InListCheck(this, expected)
+	let split_list = split(a:expected, ",")
+	if index(split_list, a:this) != -1
+		return 1
+	endif
+	return 0
+endfunction
+
+function! s:MethodListed(method)
+	let ft_methods = TagHighlight#Option#GetOption('LanguageDetectionMethods')
+	if index(ft_methods, a:method) != -1
+		return 1
+	endif
+	return 0
+endfunction
+
+function! s:ReadTypesImplementation(lookup, reference, check_function)
+	let result = 0
+	if TagHighlight#Debug#DebugLevelIncludes('Information')
+		call TagHLDebug("Reading types with " . a:lookup . " at " . strftime("%Y%m%d-%H%M%S"), "Information")
+	endif
+	for key in keys(g:TagHighlightPrivate[a:lookup])
+		if eval(a:check_function . '(a:reference, key)') == 1
+			call s:ReadTypes(g:TagHighlightPrivate[a:lookup][key])
+			let result = 1
+		endif
+	endfor
+	return result
+endfunction
+
+function! s:ReadTypes(suffix)
 	let savedView = winsaveview()
 
 	call TagHighlight#Option#LoadOptionFileIfPresent()
@@ -127,6 +214,7 @@ function! TagHighlight#ReadTypes#ReadTypes(suffix)
 
 	" Restore the view
 	call winrestview(savedView)
+	call TagHLDebug("ReadTypes complete", "Information")
 endfunction
 
 function! TagHighlight#ReadTypes#FindTypeFiles(suffix)

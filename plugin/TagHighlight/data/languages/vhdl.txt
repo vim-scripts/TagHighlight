@@ -3,5 +3,7 @@ CTagsName:vhdl
 PythonExtensionMatcher:vhdl?
 VimExtensionMatcher:vhdl\?
 Suffix:vhdl
+VimFileTypes:vhdl
+VimSyntaxes:vhdl
 
 # vim: ff=unix:noet

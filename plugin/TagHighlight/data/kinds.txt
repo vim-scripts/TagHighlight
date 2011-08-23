@@ -173,7 +173,7 @@ sml:
 	t:CTagsType
 	v:CTagsGlobalVariable
 sql:
-	c:CTagsCursor
+	c:CTagsSqlCursor
 	d:CTagsFunction
 	f:CTagsFunction
 	F:CTagsField

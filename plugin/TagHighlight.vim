@@ -59,11 +59,28 @@ function! s:LoadLanguages()
 	" This loads the language data files.
 	let language_files = split(glob(g:TagHighlightPrivate['PluginPath'] . '/data/languages/*.txt'), '\n')
 	let g:TagHighlightPrivate['ExtensionLookup'] = {}
+	let g:TagHighlightPrivate['FileTypeLookup'] = {}
+	let g:TagHighlightPrivate['SyntaxLookup'] = {}
 	let g:TagHighlightPrivate['SpecialSyntaxHandlers'] = {}
 	for language_file in language_files
 		let entries = TagHighlight#LoadDataFile#LoadFile(language_file)
-		if has_key(entries, 'VimExtensionMatcher') && has_key(entries, 'Suffix')
+		if has_key(entries, 'Suffix') && has_key(entries, 'VimExtensionMatcher') 
+					\ && has_key(entries, 'VimFileTypes') && has_key(entries, 'VimSyntaxes')
 			let g:TagHighlightPrivate['ExtensionLookup'][entries['VimExtensionMatcher']] = entries['Suffix']
+
+			if type(entries['VimFileTypes']) == type([])
+				let ftkey = join(entries['VimFileTypes'], ",")
+			else
+				let ftkey = entries['VimFileTypes']
+			endif
+			let g:TagHighlightPrivate['FileTypeLookup'][ftkey] = entries['Suffix']
+
+			if type(entries['VimSyntaxes']) == type([])
+				let stkey = join(entries['VimSyntaxes'], ",")
+			else
+				let stkey = entries['VimSyntaxes']
+			endif
+			let g:TagHighlightPrivate['SyntaxLookup'][stkey] = entries['Suffix']
 		else
 			echoerr "Could not load language from file " . language_file
 		endif
@@ -126,5 +143,10 @@ for tagname in g:TagHighlightPrivate['AllTypes']
 	exe 'hi default link' simplename 'Keyword'
 endfor
 
-autocmd BufRead,BufNewFile * call TagHighlight#ReadTypes#ReadTypesAutoDetect()
-command! ReadTypes call TagHighlight#ReadTypes#ReadTypesAutoDetect()
+if ! has_key(g:TagHighlightPrivate, 'AutoCommandsLoaded')
+	let g:TagHighlightPrivate['AutoCommandsLoaded'] = 1
+	autocmd BufRead,BufNewFile * call TagHighlight#ReadTypes#ReadTypesByExtension()
+	autocmd Syntax * call TagHighlight#ReadTypes#ReadTypesBySyntax()
+	autocmd FileType * call TagHighlight#ReadTypes#ReadTypesByFileType()
+endif
+command! ReadTypes call TagHighlight#ReadTypes#ReadTypesByOption()

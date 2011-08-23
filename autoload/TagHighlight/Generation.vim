@@ -157,7 +157,7 @@ function! TagHighlight#Generation#UpdateAndRead(skiptags)
 	call TagHighlight#Generation#UpdateTypesFile()
 	let SavedTabNr = tabpagenr()
 	let SavedWinNr = winnr()
-	tabdo windo call TagHighlight#ReadTypes#ReadTypesAutoDetect()
+	tabdo windo call TagHighlight#ReadTypes#ReadTypesByOption()
 	exe 'tabn' SavedTabNr
 	exe SavedWinNr . 'wincmd w'
 
