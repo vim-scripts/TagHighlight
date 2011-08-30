@@ -125,6 +125,8 @@ lua:
 	f:CTagsFunction
 make:
 	m:CTagsFunction
+matlab:
+	f:CTagsFunction
 pascal:
 	f:CTagsFunction
 	p:CTagsFunction

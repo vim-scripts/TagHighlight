@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Tag Highlighter:
 #   Author:  A. S. Budden <abudden _at_ gmail _dot_ com>
-#   Date:    02/08/2011
 # Copyright: Copyright (C) 2009-2011 A. S. Budden
 #            Permission is hereby granted to use and distribute this code,
 #            with or without modifications, provided that this copyright
@@ -63,7 +62,7 @@ def CreateTypesFile(options, language, tags):
     # is last.
     priority.reverse()
 
-    fullTypeList = sorted(tags.keys())
+    fullTypeList = list(reversed(sorted(tags.keys())))
     # Reorder type list according to priority sort order
     allTypes = []
     for thisType in priority:
@@ -71,7 +70,9 @@ def CreateTypesFile(options, language, tags):
             allTypes.append(thisType)
             fullTypeList.remove(thisType)
     # Add the ones not specified in priority
-    allTypes += fullTypeList
+    allTypes = fullTypeList + allTypes
+
+    Debug("Type priority list: " + repr(allTypes), "Information")
 
     patternREs = []
     for pattern in options['skip_patterns']:

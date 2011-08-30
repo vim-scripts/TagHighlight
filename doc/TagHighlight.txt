@@ -48,10 +48,11 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 2.1 Introduction                         *TagHighlight-intro*               {{{2
 
-	This set of scripts is designed to increase the number of highlighting
-	groups used by Vim.  This makes it quicker and easier to spot errors in
-	your code.  By using ctags and parsing the output, the typedefs, #defines,
-	enumerated names etc are all clearly highlighted in different colours.
+	TagHighlight is a plugin that highlights names of classes, variables,
+	types etc in source code in Vim.  This makes it quicker and easier to spot
+	errors in your code.  By using ctags and parsing the output, the typedefs,
+	#defines, enumerated names etc are all clearly highlighted in different
+	colours.
 
 	The idea was based on the comments in |tag-highlight|, but I wanted to
 	take it a little further.
@@ -68,6 +69,7 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 		* C/C++
 		* C#
 		* Java
+		* Matlab (function names only; may require custom ctags)
 		* Perl
 		* PHP
 		* Python
@@ -172,7 +174,9 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 		GlobalConstant  : Global Constant
 		GlobalVariable  : Global Variable
 		LocalVariable   : Local Variable
-	
+
+	                                      *TagHighlight-language-colours*
+
 	To see the full list of supported groups for a given language, open up
 	plugin/TagHighlight/data/kinds.txt and find your language.  The bit after
 	CTags is the name of the highlight group.  For example, for C++, there is
@@ -183,8 +187,14 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 	so for this language, the highlight group 'DefinedName' can be used to
 	highlight defined names.
 
-	An example of how to highlight one of these would be to include the
-	following line in your colour scheme (see |:highlight|):
+	The easiest way to add these new groups to an existing colour scheme is to
+	download my |EasyColour| plugin from:
+>
+		http://www.cgtk.co.uk/easycolour
+<
+	If you want to edit an existing colour scheme manually, an example of how
+	to highlight one of these would be to include the following line in your
+	colour scheme (see |:highlight|):
 >
 		hi Enumerator guifg="c000c0"
 <
@@ -400,6 +410,15 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 		LanguageDetectionMethods         Link:|TagHL-LanguageDetectionMethods|
 			How to identify programming language and which |autocmd|s to run.
+
+		ExtensionLanguageOverrides       Link:|TagHL-ExtensionLanguageOverrides|
+			Force a particular file extension to match a chosen language.
+			
+		FileTypeLanguageOverrides        Link:|TagHL-FileTypeLanguageOverrides|
+			Force a particular file type to match a chosen language.
+
+		SyntaxLanguageOverrides          Link:|TagHL-SyntaxLanguageOverrides|
+			Force a particular Vim syntax to match a chosen language.
 
 	What to include in the generated types file
 
@@ -699,6 +718,41 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 		Option Type: Boolean
 		Default: False (generate tags)
 
+	ExtensionLanguageOverrides           *TagHL-ExtensionLanguageOverrides*
+		If there are any entries in this dictionary, they will be used to
+		force a particular file extension to be treated as representing a
+		particular programming language.  The dictionary key is a Vim regular
+		expression that matches the file extension and the dictionary value is
+		the "suffix" defined for that language (the bit in between "types_"
+		and ".taghl" in the generated type highlighter file).
+
+		For example, to make all .svn files be treated as C files by the
+		highlighter (so that function names mentioned in your commit log are
+		highlighted), you could use something like this:
+>
+			let g:TagHighlightSettings['ExtensionLanguageOverrides'] =
+					\ {'svn': 'c'}
+<
+		To disable an extension from matching against a language, set the
+		dictionary value to an empty string ("").
+
+		This override will only work if 'Extension' is in the list of
+		|TagHL-LanguageDetectionMethods|.
+
+	FileTypeLanguageOverrides            *TagHL-FileTypeLanguageOverrides*
+		If there are any entries in this dictionary, they will be used to
+		force a particular file type to be treated as representing a
+		particular programming language.  The dictionary key is a Vim file
+		type (as reported by ":set ft?") and the dictionary value is the
+		"suffix" defined for that language (the bit in between "types_"
+		and ".taghl" in the generated type highlighter file).
+
+		To disable a file type from matching against a language, set the
+		dictionary value to an empty string ("").
+
+		This override will only work if 'FileType' is in the list of
+		|TagHL-LanguageDetectionMethods|.
+
 	ForcedPythonVariant                  *TagHL-ForcedPythonVariant*
 		There are a number of different python variants that are supported for
 		running the python part of the plugin.  If this option is set to one
@@ -753,13 +807,14 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 					   for matches with the VimExtensionMatcher in the
 					   language definition files.
 
-			Syntax: Look at syntax that has been selected by Vim and check for
-			        matches with the VimSyntaxes list in the language
-			        definition files.
-
 			FileType: Look at the file type that has been selected by Vim and
 			          check for matches with the VimFileTypes list in the
 			          language definition files.
+
+			Syntax: Look at syntax that has been selected by Vim and check for
+			        matches with the VimSyntaxes list in the language
+			        definition files.  In most cases, you probably want to use
+			        FileType rather than Syntax.
 
 		When calling the either of the core commands (|:ReadTypes| and
 		|:UpdateTypesFile|), they are checked in the order specified in the
@@ -973,6 +1028,22 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 		Option Type: String
 		Default: None (use normal scanning method)
+
+	SyntaxLanguageOverrides              *TagHL-SyntaxLanguageOverrides*
+		If there are any entries in this dictionary, they will be used to
+		force a particular file that is being highlighted with a specified
+		syntax to be treated as representing a particular programming
+		language.  The dictionary key is a Vim syntax name (as reported by
+		":set syntax?") and the dictionary value is the "suffix" defined for
+		that language (the bit in between "types_" and ".taghl" in the
+		generated type highlighter file).  In most cases, you probably want to
+		use |TagHL-FileTypeLanguageOverrides|.
+
+		To disable a syntax type from matching against a language, set the
+		dictionary value to an empty string ("").
+
+		This override will only work if 'Syntax' is in the list of
+		|TagHL-LanguageDetectionMethods|.
 
 	TagFileDirModePriority               *TagHL-TagFileDirModePriority*
 		This option is used to determine which directories to look in for a
@@ -1415,6 +1486,13 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 ==============================================================================
 6. TagHighlight History                *TagHighlight-history*               {{{1
+
+2.1.2:  30th August 2011   : Allow overriding the file-language relationship
+                             without having to edit the language definitions.
+                             Added support for Matlab (if your version of
+                             ctags supports it).  Added support for .hh
+                             extension for C/C++ headers.  Fixed bug with
+                             highlight priority for non-specified types.
 
 2.1.1:  23rd August 2011   : Addition of LanguageDetectionMethods option to
                              allow loading of types when FileType or Syntax

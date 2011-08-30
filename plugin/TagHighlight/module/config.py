@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Tag Highlighter:
 #   Author:  A. S. Budden <abudden _at_ gmail _dot_ com>
-#   Date:    02/08/2011
 # Copyright: Copyright (C) 2009-2011 A. S. Budden
 #            Permission is hereby granted to use and distribute this code,
 #            with or without modifications, provided that this copyright

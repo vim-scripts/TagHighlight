@@ -1,4 +1,4 @@
 # Release is major.minor.revision
 # Revision is incremented automatically, when incrementing
 # others, set revision back to -1: first release will be 0.
-release:2.1.1
+release:2.1.2

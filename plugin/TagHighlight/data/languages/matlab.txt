@@ -1,0 +1,9 @@
+FriendlyName:matlab
+CTagsName:matlab
+PythonExtensionMatcher:m
+VimExtensionMatcher:m
+Suffix:matlab
+VimSyntaxes:matlab
+VimFileTypes:matlab
+
+# vim: ff=unix:noet

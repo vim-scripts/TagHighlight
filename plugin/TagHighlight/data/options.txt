@@ -8,6 +8,24 @@ language_detection_method:
 	Default:Extension
 	Help:Specify methods to use for determining language for the file when reading highlight definitions.
 
+filetype_language_overrides:
+	VimOptionMap:FileTypeLanguageOverrides
+	Type:dict
+	Default:{}
+	Help:Match file types to languages manually (if FileType language detection method is enabled).
+
+extension_language_overrides:
+	VimOptionMap:ExtensionLanguageOverrides
+	Type:dict
+	Default:{}
+	Help:Match extensions to languages manually (if Extension language detection method is enabled).
+
+syntax_language_overrides:
+	VimOptionMap:SyntaxLanguageOverrides
+	Type:dict
+	Default:{}
+	Help:Match syntaxes to languages manually (if Syntax language detection method is enabled).
+
 disable_type_parsing:
 	VimOptionMap:DisableTypeParsing
 	Type:bool
