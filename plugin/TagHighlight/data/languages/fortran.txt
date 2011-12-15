@@ -1,0 +1,8 @@
+FriendlyName:fortran
+CTagsName:fortran
+PythonExtensionMatcher:(f|f90|for)
+VimExtensionMatcher:\(f\|f90\|for\)
+VimFileTypes:fortran
+VimSyntaxes:fortran
+Suffix:fortran
+# vim: ff=unix:noet

@@ -87,6 +87,11 @@ function! TagHighlight#Debug#DebugUpdateTypesFile(filename)
 	let g:TagHighlightSettings['DebugLevel'] = 'Information'
 
 	call TagHLDebug("========================================================", "Information")
+	redir => vim_version_info
+	silent version
+	redir END
+	call TagHLDebug("--------------------------------------------------------", "Information")
+	call TagHLDebug(vim_version_info, "Information")
 	call TagHighlight#Generation#UpdateAndRead(0)
 
 	" Get rid of the 'stored' versions of the debug options

@@ -101,6 +101,12 @@ fortran:
 	s:CTagsSubroutine
 	t:CTagsType
 	v:CTagsGlobalVariable
+go:
+	c:CTagsConstant
+	f:CTagsFunction
+	p:CTagsPackage
+	t:CTagsType
+	v:CTagsVariable
 html:
 	a:CTagsAnchor
 	f:CTagsFunction
@@ -242,4 +248,4 @@ vim:
 	v:CTagsGlobalVariable
 yacc:
 	l:CTagsLabel
-# vim: ff=unix
+# vim: ff=unix:noet

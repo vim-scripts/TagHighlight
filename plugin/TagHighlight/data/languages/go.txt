@@ -1,0 +1,9 @@
+FriendlyName:go
+CTagsName:go
+PythonExtensionMatcher:go
+VimExtensionMatcher:go
+VimSyntaxes:go
+VimFileTypes:go
+Suffix:go
+
+# vim: ff=unix:noet

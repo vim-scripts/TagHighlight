@@ -74,6 +74,7 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 		* PHP
 		* Python
 		* Ruby (largely untested)
+		* Fortran
 		* VHDL (if your version of ctags supports it)
 
 	It should also work correctly with Charles Campbell's rainbow.vim bracket
@@ -141,7 +142,7 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 	:ReadTypes                       *:ReadTypes*
 
-		This comment can be used to manually read in any types files to
+		This command can be used to manually read in any types files to
 		highlight keywords.  Generally not likely to be used as the
 		built-in autocmds should load the types files when a file is
 		loaded or the types files are updated.
@@ -1486,6 +1487,15 @@ Copyright:  (c) 2009-2011 by A. S. Budden             *TagHighlight-copyright*
 
 ==============================================================================
 6. TagHighlight History                *TagHighlight-history*               {{{1
+
+2.1.4: 15th December 2011  : Improved internal modeline to make addition of
+                             languages more straightforward.  Added support
+                             for Go Programming Language (thanks to Ali Hamdi).
+
+2.1.3: 14th October 2011   : Minor typo correction in documentation.  Fix to
+                             make TagHighlight with pre 7.3-288 versions of
+                             Vim (bug in has() function).  Added support for
+                             Fortran (thanks to Oleg Lebedev).
 
 2.1.2:  30th August 2011   : Allow overriding the file-language relationship
                              without having to edit the language definitions.
