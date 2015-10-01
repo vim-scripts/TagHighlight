@@ -112,7 +112,7 @@ function! TagHighlight#Libraries#FindUserLibraries()
 						\     'Path': fnamemodify(library_path, '%:p'),
 						\ }]
 		else
-			TagHLDebug("Cannot load user library " . library, "Error")
+	       call TagHLDebug("Cannot load user library " . library, "Error")
 		endif
 	endfor
 	return libraries_to_load

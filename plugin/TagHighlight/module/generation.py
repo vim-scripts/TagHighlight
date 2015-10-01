@@ -15,6 +15,7 @@
 from __future__ import print_function
 import os
 import re
+import sys
 from .utilities import GenerateValidKeywordRange, IsValidKeyword
 from .debug import Debug
 
@@ -160,8 +161,9 @@ def CreateTypesFile(options, language, tags):
         # The resulting file will then work with any Vim (Windows, Linux, Cygwin etc)
         fh = open(filename, 'wb')
     except IOError:
-        Debug("ERROR: Couldn't create {file}\n".format(file=outfile), "Error")
-        sys.exit(1)
+        print("ERROR: Couldn't create {file}\n".format(file=filename), "Error")
+        Debug("ERROR: Couldn't create {file}\n".format(file=filename), "Error")
+        #sys.exit(1)
 
     try:
         for line in vimtypes_entries:
@@ -172,7 +174,8 @@ def CreateTypesFile(options, language, tags):
                 fh.write('echoerr "Types generation error"\n'.encode('ascii'))
             fh.write('\n'.encode('ascii'))
     except IOError:
-        Debug("ERROR: Couldn't write {file} contents\n".format(file=outfile), "Error")
+        print("ERROR: Couldn't write {file} contents\n".format(file=filename), "Error")
+        Debug("ERROR: Couldn't write {file} contents\n".format(file=filename), "Error")
         sys.exit(1)
     finally:
         fh.close()
